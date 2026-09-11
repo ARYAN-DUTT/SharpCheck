@@ -1,26 +1,29 @@
+@import url("https://fonts.googleapis.com/css2?family=Pacifico&family=Inter:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* Enable class-based dark mode with Tailwind v4 */
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-primary-blue: #2563EB;
+  --color-light-blue: #BDE0FE;
+  --color-dark-blue: #1E3A8A;
+  --color-bg-page: #F4F5F7;
+  --color-border-dashed: #94A3B8;
+  --font-pacifico: "Pacifico", cursive;
+  --font-inter: "Inter", sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter);
+  background-color: var(--color-bg-page);
+  color: var(--color-dark-blue);
+  min-height: 100vh;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Dark mode body — applied instantly by blocking script before React */
+html.dark body {
+  background-color: #0F172A;
+  color: #E2E8F0;
 }
