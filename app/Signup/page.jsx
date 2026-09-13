@@ -8,10 +8,33 @@ export default function Signup() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert(`Signing up: ${fullName}, ${email}`);
+    setError(null);
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fullName, email, password }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Something went wrong");
+      }
+
+      // Redirect to home page after successful signup
+      window.location.href = "/";
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -53,9 +76,10 @@ export default function Signup() {
                 className="w-full px-4 py-3 rounded-xl outline-none focus:ring-2 focus:ring-[var(--color-primary-blue)] transition-all bg-white dark:bg-[#0F172A] text-[var(--color-dark-blue)] dark:text-[#E2E8F0] dark:placeholder-[#475569]" />
             </div>
 
-            <button type="submit" className="w-full bg-[var(--color-primary-blue)] text-white py-3 rounded-xl font-semibold text-lg hover:brightness-110 transition-all cursor-pointer mt-2">
-              Sign Up
+            <button disabled={loading} type="submit" className="w-full bg-[var(--color-primary-blue)] text-white py-3 rounded-xl font-semibold text-lg hover:brightness-110 transition-all cursor-pointer mt-2 disabled:opacity-50">
+              {loading ? "Signing Up..." : "Sign Up"}
             </button>
+            {error && <p className="text-red-500 text-sm text-center font-medium mt-1">{error}</p>}
           </form>
 
           <p className="text-center text-sm mt-6 text-[var(--color-dark-blue)] dark:text-[#94A3B8]">

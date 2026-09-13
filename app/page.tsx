@@ -1,14 +1,36 @@
 "use client";
 
-import { useRef, useState, type DragEvent, type ChangeEvent } from "react";
+import { useRef, useState, useEffect, type DragEvent, type ChangeEvent } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { DarkModeToggle } from "./ThemeContext";
 
 export default function Home() {
+  const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then(res => res.json())
+      .then(data => {
+        if (data.user) {
+          setUser(data.user);
+        }
+      });
+  }, []);
+
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    setUser(null);
+    window.location.reload();
+  };
 
   const handleSelectPictures = () => {
     fileInputRef.current?.click();
@@ -17,6 +39,7 @@ export default function Home() {
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setSelectedFiles(Array.from(e.target.files));
+      setError(null);
     }
   };
 
@@ -35,16 +58,45 @@ export default function Home() {
     setIsDragging(false);
     if (e.dataTransfer.files) {
       setSelectedFiles(Array.from(e.dataTransfer.files));
+      setError(null);
     }
   };
 
-  const handleCheck = () => {
+  const handleCheck = async () => {
     if (selectedFiles.length === 0) {
       alert("Please select or drop pictures first.");
       return;
     }
-    alert(`Checking ${selectedFiles.length} file(s)...`);
+    
+    setLoading(true);
+    setError(null);
+
+    const formData = new FormData();
+    selectedFiles.forEach((file) => {
+      formData.append('images', file);
+    });
+
+    try {
+      const response = await fetch('/api/check-compliance', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to check compliance');
+      }
+
+      router.push(`/report/${data.report.id}`);
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   return (
     <div className="min-h-screen flex flex-col font-[family-name:var(--font-inter)] transition-colors duration-300 bg-[var(--color-bg-page)] dark:bg-[#0F172A] text-[var(--color-dark-blue)] dark:text-[#E2E8F0]">
@@ -75,11 +127,22 @@ export default function Home() {
           </nav>
         </div>
 
-        {/* Sign Up button */}
-        <div className="flex-none md:flex-1 flex justify-end">
-          <Link href="/Signup" className="bg-[var(--color-primary-blue)] text-white px-2 py-1 mr-1 md:mr-2 rounded-lg text-sm md:text-base hover:brightness-110 transition-all cursor-pointer">
-            Sign Up
-          </Link>
+        {/* Sign Up / User actions */}
+        <div className="flex-none md:flex-1 flex justify-end gap-2 items-center">
+          {user ? (
+            <>
+              <Link href="/history" className="bg-[var(--color-light-blue)] text-[var(--color-dark-blue)] border-2 border-[var(--color-primary-blue)] px-3 py-1.5 mr-2 rounded-lg text-sm md:text-base hover:bg-[var(--color-primary-blue)] hover:text-white transition-all cursor-pointer font-medium shadow-sm">
+                History
+              </Link>
+              <button onClick={handleLogout} className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white font-medium px-2 py-1.5 rounded-lg text-sm md:text-base transition-all cursor-pointer underline underline-offset-4 decoration-transparent hover:decoration-current">
+                Log Out
+              </button>
+            </>
+          ) : (
+            <Link href="/Signup" className="bg-[var(--color-primary-blue)] text-white px-2 py-1 mr-1 md:mr-2 rounded-lg text-sm md:text-base hover:brightness-110 transition-all cursor-pointer">
+              Sign Up
+            </Link>
+          )}
         </div>
       </header>
 
@@ -97,7 +160,7 @@ export default function Home() {
       {/* ─── Main content ─── */}
       <main className="flex-1 flex flex-col items-center justify-center gap-6 md:gap-10 px-4 md:px-0 py-6 md:py-0">
         <p className="text-base md:text-xl font-medium text-center text-[var(--color-dark-blue)] dark:text-[#CBD5E1]">
-          Some random line conveying what the project does
+          {user ? `Welcome, ${user.name}` : "Check if your products comply with the Legal Metrology rules"}
         </p>
 
         <div
@@ -137,10 +200,28 @@ export default function Home() {
 
         <button
           onClick={handleCheck}
-          className="bg-[var(--color-primary-blue)] text-white px-8 py-2.5 md:px-10 md:py-3 rounded-full font-semibold text-base md:text-lg shadow-md hover:brightness-110 hover:shadow-lg transition-all cursor-pointer"
+          disabled={loading}
+          className="bg-[var(--color-primary-blue)] text-white px-8 py-2.5 md:px-10 md:py-3 rounded-full font-semibold text-base md:text-lg shadow-md hover:brightness-110 hover:shadow-lg transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
         >
-          Check
+          {loading ? (
+            <>
+              <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Checking...
+            </>
+          ) : (
+            'Check Compliance'
+          )}
         </button>
+
+        {error && (
+          <div className="w-full max-w-sm md:max-w-4xl p-4 rounded-xl bg-red-50 border border-red-200">
+            <h3 className="text-sm font-medium text-red-800">Error</h3>
+            <div className="mt-2 text-sm text-red-700">{error}</div>
+          </div>
+        )}
       </main>
 
       <DarkModeToggle />

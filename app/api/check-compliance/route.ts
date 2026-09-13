@@ -1,0 +1,127 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { prisma } from '@/lib/prisma'; // Assuming lib is aliased or use relative path
+
+// We will use standard relative import since alias might not be configured
+// import { prisma } from '../../../lib/prisma';
+
+// Helper to convert File to generative-ai part object
+async function fileToGenerativePart(file: File) {
+  const arrayBuffer = await file.arrayBuffer();
+  const base64Data = Buffer.from(arrayBuffer).toString("base64");
+  
+  return {
+    inlineData: {
+      data: base64Data,
+      mimeType: file.type
+    },
+  };
+}
+
+const SYSTEM_PROMPT = `
+You are a Legal Metrology Compliance Expert for Packaged Commodities in India.
+Your task is to analyze the provided image(s) of a packaged product's label and determine if it complies with "The Legal Metrology (Packaged Commodities) Rules, 2011".
+
+Identify the name of the product being checked, and evaluate the presence and validity of the following 9 parameters:
+1. Name and address of the manufacturer, packer, or importer.
+2. Common or generic name of the commodity.
+3. Net quantity (in standard units of weight, measure, or number).
+4. Month and year of manufacture, pre-packing, or import.
+5. Retail sale price (Maximum Retail Price or MRP inclusive of all taxes).
+6. Contact details for consumer complaints (name/designation, address, telephone number, and e-mail address).
+7. Dimensions (if the size of the commodity is relevant, e.g., bedsheets, napkins).
+8. Best Before / Expiry date (specifically for food products or perishables).
+9. Country of Origin (specifically for imported products).
+
+Respond strictly in JSON format with the following structure:
+{
+  "productName": "string", // The inferred or explicitly stated name of the product
+  "parameters": [
+    {
+      "name": "string", // e.g., "1. Name and address of manufacturer"
+      "status": "Compliant" | "Non-Compliant" | "Not Applicable" // Use "Not Applicable" for conditional parameters like Dimensions or Expiry Date if the product does not require them.
+    }
+  ],
+  "isCompliant": boolean, // true if ALL APPLICABLE parameters are "Compliant". If any applicable parameter is "Non-Compliant", this must be false.
+  "observations": "string" // A detailed explanation of your findings, what you saw, and why it is compliant or not.
+}
+`;
+
+export async function POST(req: NextRequest) {
+  try {
+    const formData = await req.formData();
+    const files = formData.getAll('images') as File[];
+
+    if (!files || files.length === 0) {
+      return NextResponse.json({ error: 'No images provided' }, { status: 400 });
+    }
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json({ error: 'Gemini API key is not configured' }, { status: 500 });
+    }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+    // Attempting to bypass the flash quota by using gemini-pro-latest
+    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+
+    // Convert all uploaded files to generative parts
+    const imageParts = await Promise.all(
+      files.map(file => fileToGenerativePart(file))
+    );
+
+    const result = await model.generateContent([
+      SYSTEM_PROMPT,
+      ...imageParts,
+    ]);
+
+    const responseText = result.response.text();
+    
+    // Extract JSON from response (handling potential markdown formatting like \`\`\`json)
+    let jsonMatch = responseText.match(/```json\n([\s\S]*?)\n```/);
+    let parsedResult;
+    
+    if (jsonMatch && jsonMatch[1]) {
+      parsedResult = JSON.parse(jsonMatch[1]);
+    } else {
+      // Fallback if no markdown block
+      parsedResult = JSON.parse(responseText);
+    }
+
+    // Check if user is logged in
+    const { getSession } = await import('@/lib/auth');
+    const session = await getSession();
+
+    // Save to Database using Prisma
+    // Assuming we have to import prisma relative to this file
+    const { PrismaClient } = await import('@prisma/client');
+    const db = new PrismaClient();
+    
+    const reportData: any = {
+      productName: parsedResult.productName || 'Unknown Product',
+      isCompliant: parsedResult.isCompliant,
+      missingFields: JSON.stringify(parsedResult.parameters || []),
+      observations: parsedResult.observations || '',
+    };
+
+    if (session?.userId) {
+      reportData.userId = session.userId;
+    }
+
+    const report = await db.complianceReport.create({
+      data: reportData
+    });
+
+    return NextResponse.json({
+      success: true,
+      report,
+    });
+
+  } catch (error) {
+    console.error("Error checking compliance:", error);
+    return NextResponse.json(
+      { error: 'Failed to process the compliance check. ' + (error as Error).message },
+      { status: 500 }
+    );
+  }
+}
