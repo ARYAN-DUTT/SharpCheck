@@ -67,7 +67,7 @@ export default function Home() {
       alert("Please select or drop pictures first.");
       return;
     }
-    
+
     setLoading(true);
     setError(null);
 
@@ -101,7 +101,7 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col font-[family-name:var(--font-inter)] transition-colors duration-300 bg-[var(--color-bg-page)] dark:bg-[#0F172A] text-[var(--color-dark-blue)] dark:text-[#E2E8F0]">
       {/* ─── Header / Navbar ─── */}
-      <header className="flex items-center justify-between py-1 px-3 md:px-4 transition-colors duration-300 bg-[var(--color-light-blue)] dark:bg-[#1E293B]">
+      <header className="flex items-center justify-between py-4 md:py-5 px-4 md:px-8 transition-colors duration-300 bg-[var(--color-light-blue)] dark:bg-[#1E293B] shadow-sm">
         {/* Hamburger menu - mobile only */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
@@ -131,8 +131,8 @@ export default function Home() {
         <div className="flex-none md:flex-1 flex justify-end gap-2 items-center">
           {user ? (
             <>
-              <Link href="/history" className="bg-[var(--color-light-blue)] text-[var(--color-dark-blue)] border-2 border-[var(--color-primary-blue)] px-3 py-1.5 mr-2 rounded-lg text-sm md:text-base hover:bg-[var(--color-primary-blue)] hover:text-white transition-all cursor-pointer font-medium shadow-sm">
-                History
+              <Link href="/dashboard" className="bg-[var(--color-light-blue)] text-[var(--color-dark-blue)] border-2 border-[var(--color-primary-blue)] px-3 py-1.5 mr-2 rounded-lg text-sm md:text-base hover:bg-[var(--color-primary-blue)] hover:text-white transition-all cursor-pointer font-medium shadow-sm">
+                Dashboard
               </Link>
               <button onClick={handleLogout} className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white font-medium px-2 py-1.5 rounded-lg text-sm md:text-base transition-all cursor-pointer underline underline-offset-4 decoration-transparent hover:decoration-current">
                 Log Out
@@ -159,7 +159,7 @@ export default function Home() {
 
       {/* ─── Main content ─── */}
       <main className="flex-1 flex flex-col items-center justify-center gap-6 md:gap-10 px-4 md:px-0 py-6 md:py-0">
-        <p className="text-base md:text-xl font-medium text-center text-[var(--color-dark-blue)] dark:text-[#CBD5E1]">
+        <p className="text-xl md:text-3xl font-medium text-center text-[var(--color-dark-blue)] dark:text-[#CBD5E1] max-w-3xl">
           {user ? `Welcome, ${user.name}` : "Check if your products comply with the Legal Metrology rules"}
         </p>
 

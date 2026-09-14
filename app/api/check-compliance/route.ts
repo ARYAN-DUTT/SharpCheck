@@ -1,15 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { prisma } from '@/lib/prisma'; // Assuming lib is aliased or use relative path
-
-// We will use standard relative import since alias might not be configured
+import sharp from 'sharp';
+import fs from 'fs/promises';
+import path from 'path';
+import crypto from 'crypto';// We will use standard relative import since alias might not be configured
 // import { prisma } from '../../../lib/prisma';
 
 // Helper to convert File to generative-ai part object
 async function fileToGenerativePart(file: File) {
   const arrayBuffer = await file.arrayBuffer();
   const base64Data = Buffer.from(arrayBuffer).toString("base64");
-  
+
   return {
     inlineData: {
       data: base64Data,
@@ -43,7 +45,7 @@ Respond strictly in JSON format with the following structure:
     }
   ],
   "isCompliant": boolean, // true if ALL APPLICABLE parameters are "Compliant". If any applicable parameter is "Non-Compliant", this must be false.
-  "observations": "string" // A detailed explanation of your findings, what you saw, and why it is compliant or not.
+  "observations": "string" // A detailed explanation of your findings, what you saw, and why it is compliant or not in a formatted manner, with proper indentations. Use bullet points and also give headings.
 }
 `;
 
@@ -65,9 +67,43 @@ export async function POST(req: NextRequest) {
     // Attempting to bypass the flash quota by using gemini-pro-latest
     const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
-    // Convert all uploaded files to generative parts
+    // Prepare uploads directory
+    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+    try {
+      await fs.access(uploadDir);
+    } catch {
+      await fs.mkdir(uploadDir, { recursive: true });
+    }
+
+    const imageUrls: string[] = [];
+
+    // Convert all uploaded files to generative parts and save compressed images
     const imageParts = await Promise.all(
-      files.map(file => fileToGenerativePart(file))
+      files.map(async (file) => {
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+
+        // Compress and save image
+        const uniqueId = crypto.randomUUID();
+        const fileName = `${uniqueId}.jpg`;
+        const filePath = path.join(uploadDir, fileName);
+
+        await sharp(buffer)
+          .resize(1024, 1024, { fit: 'inside', withoutEnlargement: true })
+          .jpeg({ quality: 80 })
+          .toFile(filePath);
+
+        imageUrls.push(`/uploads/${fileName}`);
+
+        // For generative part, we can use the original or compressed, using original for now
+        const base64Data = buffer.toString("base64");
+        return {
+          inlineData: {
+            data: base64Data,
+            mimeType: file.type
+          },
+        };
+      })
     );
 
     const result = await model.generateContent([
@@ -76,11 +112,11 @@ export async function POST(req: NextRequest) {
     ]);
 
     const responseText = result.response.text();
-    
+
     // Extract JSON from response (handling potential markdown formatting like \`\`\`json)
     let jsonMatch = responseText.match(/```json\n([\s\S]*?)\n```/);
     let parsedResult;
-    
+
     if (jsonMatch && jsonMatch[1]) {
       parsedResult = JSON.parse(jsonMatch[1]);
     } else {
@@ -96,12 +132,13 @@ export async function POST(req: NextRequest) {
     // Assuming we have to import prisma relative to this file
     const { PrismaClient } = await import('@prisma/client');
     const db = new PrismaClient();
-    
+
     const reportData: any = {
       productName: parsedResult.productName || 'Unknown Product',
       isCompliant: parsedResult.isCompliant,
       missingFields: JSON.stringify(parsedResult.parameters || []),
       observations: parsedResult.observations || '',
+      imageUrl: JSON.stringify(imageUrls), // Store multiple URLs as a JSON string
     };
 
     if (session?.userId) {
