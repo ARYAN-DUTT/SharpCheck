@@ -80,6 +80,54 @@ export default function Home() {
     }
   };
 
+  const compressImage = (file: File): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          
+          const MAX_SIZE = 1200;
+          if (width > height) {
+            if (width > MAX_SIZE) {
+              height *= MAX_SIZE / width;
+              width = MAX_SIZE;
+            }
+          } else {
+            if (height > MAX_SIZE) {
+              width *= MAX_SIZE / height;
+              height = MAX_SIZE;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          canvas.toBlob((blob) => {
+            if (blob) {
+              const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
+                type: 'image/jpeg',
+                lastModified: Date.now(),
+              });
+              resolve(compressedFile);
+            } else {
+              reject(new Error('Canvas to Blob failed'));
+            }
+          }, 'image/jpeg', 0.8);
+        };
+        img.onerror = (err) => reject(err);
+      };
+      reader.onerror = (err) => reject(err);
+    });
+  };
+
   const handleCheck = async () => {
     if (selectedFiles.length === 0) {
       alert("Please select or drop pictures first.");
@@ -89,21 +137,33 @@ export default function Home() {
     setLoading(true);
     setError(null);
 
-    const formData = new FormData();
-    selectedFiles.forEach((file) => {
-      formData.append('images', file);
-    });
-
     try {
+      const formData = new FormData();
+      for (const file of selectedFiles) {
+        try {
+          const compressed = await compressImage(file);
+          formData.append('images', compressed);
+        } catch (e) {
+          console.error("Compression failed, using original file", e);
+          formData.append('images', file);
+        }
+      }
+
       const response = await fetch('/api/check-compliance', {
         method: 'POST',
         body: formData,
       });
 
-      const data = await response.json();
+      const text = await response.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (err) {
+        throw new Error(!response.ok ? text || 'Server Error' : 'Invalid JSON from server');
+      }
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to check compliance');
+        throw new Error(data?.error || 'Failed to check compliance');
       }
 
       router.push(`/report/${data.report.id}`);
