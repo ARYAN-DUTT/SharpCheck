@@ -11,6 +11,7 @@ import "./box-animation.css";
 export default function Home() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -47,6 +48,10 @@ export default function Home() {
 
   const handleSelectPictures = () => {
     fileInputRef.current?.click();
+  };
+
+  const handleCameraCapture = () => {
+    cameraInputRef.current?.click();
   };
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -170,8 +175,8 @@ export default function Home() {
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             className={`
-            w-full max-w-sm md:max-w-4xl rounded-[1.5rem] md:rounded-[2rem] px-6 md:px-20 min-h-[350px] md:min-h-[520px]
-            border-[3px] border-dashed flex flex-col items-center justify-center gap-3
+            w-full max-w-[95%] md:max-w-4xl rounded-[1.5rem] md:rounded-[2rem] px-4 md:px-20 py-8 md:py-12 min-h-[280px] md:min-h-[520px]
+            border-[3px] border-dashed flex flex-col items-center justify-center gap-4 md:gap-6
             transition-all duration-200
             bg-[var(--color-light-blue)] dark:bg-[#1E293B]
             ${isDragging
@@ -181,15 +186,26 @@ export default function Home() {
           `}
           >
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+            <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleFileChange} className="hidden" />
 
-            <button
-              onClick={handleSelectPictures}
-              className="bg-[var(--color-primary-blue)] text-white px-8 py-4 md:px-16 md:py-6 rounded-2xl md:rounded-3xl font-semibold text-lg md:text-2xl hover:brightness-110 transition-all cursor-pointer"
-            >
-              Select Pictures
-            </button>
+            <div className="flex flex-col sm:flex-row gap-3 md:gap-6 w-full sm:w-auto px-4 sm:px-0">
+              <button
+                onClick={handleCameraCapture}
+                className="flex-1 flex items-center justify-center gap-2 bg-white text-[var(--color-primary-blue)] border-2 border-[var(--color-primary-blue)] px-6 py-3.5 md:px-10 md:py-4 rounded-xl md:rounded-2xl font-semibold text-base md:text-xl hover:bg-gray-50 transition-all cursor-pointer shadow-sm"
+              >
+                <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                Take Photo
+              </button>
+              <button
+                onClick={handleSelectPictures}
+                className="flex-1 flex items-center justify-center gap-2 bg-[var(--color-primary-blue)] text-white px-6 py-3.5 md:px-10 md:py-4 rounded-xl md:rounded-2xl font-semibold text-base md:text-xl hover:brightness-110 transition-all cursor-pointer shadow-sm"
+              >
+                <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                Gallery
+              </button>
+            </div>
 
-            <p className="text-sm mt-1 text-[var(--color-dark-blue)] dark:text-[#94A3B8]">
+            <p className="text-sm mt-2 text-[var(--color-dark-blue)] dark:text-[#94A3B8]">
               or drag and drop here
             </p>
 
