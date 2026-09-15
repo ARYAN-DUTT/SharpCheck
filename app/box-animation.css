@@ -616,6 +616,19 @@
     padding: 6px 12px;
     font-size: 0.75rem;
   }
+
+  .ub-prod__logo {
+    width: 150px;
+    height: 150px;
+  }
+
+  .ub-prod__name {
+    font-size: 3.5rem;
+  }
+
+  .ub-tag {
+    display: none;
+  }
 }
 
 @media (min-width: 1200px) {

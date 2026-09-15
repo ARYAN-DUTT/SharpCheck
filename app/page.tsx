@@ -180,7 +180,7 @@ export default function Home() {
               }
           `}
           >
-            <input ref={fileInputRef} type="file" multiple accept="image/*" onChange={handleFileChange} className="hidden" />
+            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
 
             <button
               onClick={handleSelectPictures}
