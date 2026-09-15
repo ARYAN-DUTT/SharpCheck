@@ -64,12 +64,8 @@ export async function POST(req: NextRequest) {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-    try {
-      await fs.access(uploadDir);
-    } catch {
-      await fs.mkdir(uploadDir, { recursive: true });
-    }
+    // We will store the images as base64 strings instead of saving to disk
+    // because Vercel has a read-only file system.
 
     const imageUrls: string[] = [];
 
@@ -78,16 +74,13 @@ export async function POST(req: NextRequest) {
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
 
-        const uniqueId = crypto.randomUUID();
-        const fileName = `${uniqueId}.jpg`;
-        const filePath = path.join(uploadDir, fileName);
-
-        await sharp(buffer)
+        const resizedBuffer = await sharp(buffer)
           .resize(1024, 1024, { fit: 'inside', withoutEnlargement: true })
           .jpeg({ quality: 80 })
-          .toFile(filePath);
+          .toBuffer();
 
-        imageUrls.push(`/uploads/${fileName}`);
+        const base64Image = `data:image/jpeg;base64,${resizedBuffer.toString('base64')}`;
+        imageUrls.push(base64Image);
 
         const base64Data = buffer.toString("base64");
         return {
