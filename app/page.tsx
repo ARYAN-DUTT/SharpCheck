@@ -56,7 +56,7 @@ export default function Home() {
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setSelectedFiles(Array.from(e.target.files));
+      setSelectedFiles(prev => [...prev, ...Array.from(e.target.files as FileList)]);
       setError(null);
     }
   };
@@ -75,7 +75,7 @@ export default function Home() {
     e.preventDefault();
     setIsDragging(false);
     if (e.dataTransfer.files) {
-      setSelectedFiles(Array.from(e.dataTransfer.files));
+      setSelectedFiles(prev => [...prev, ...Array.from(e.dataTransfer.files as FileList)]);
       setError(null);
     }
   };
@@ -185,7 +185,7 @@ export default function Home() {
               }
           `}
           >
-            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+            <input ref={fileInputRef} type="file" multiple accept="image/*" onChange={handleFileChange} className="hidden" />
             <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleFileChange} className="hidden" />
 
             <div className="flex flex-col sm:flex-row gap-3 md:gap-6 w-full sm:w-auto px-4 sm:px-0">
@@ -211,9 +211,14 @@ export default function Home() {
             </p>
 
             {selectedFiles.length > 0 && (
-              <p className="text-[var(--color-primary-blue)] text-sm font-medium mt-2">
-                {selectedFiles.length} file(s) selected
-              </p>
+              <div className="flex items-center gap-3 mt-2">
+                <p className="text-[var(--color-primary-blue)] text-sm font-medium">
+                  {selectedFiles.length} file(s) selected
+                </p>
+                <button onClick={(e) => { e.stopPropagation(); setSelectedFiles([]); }} className="text-red-500 text-sm font-semibold hover:underline">
+                  Clear
+                </button>
+              </div>
             )}
           </div>
 
