@@ -6,9 +6,9 @@
 
 @theme inline {
   --color-primary-blue: #2563EB;
-  --color-light-blue: #BDE0FE;
+  --color-light-blue: #E0F2FE;
   --color-dark-blue: #1E3A8A;
-  --color-bg-page: #F4F5F7;
+  --color-bg-page: #FFFFFF;
   --color-border-dashed: #94A3B8;
   --font-pacifico: "Pacifico", cursive;
   --font-inter: "Inter", sans-serif;

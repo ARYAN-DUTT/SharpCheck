@@ -11,7 +11,7 @@ export default function ReportList({ initialReports }: { initialReports: any[] }
   const router = useRouter();
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
-    e.preventDefault(); // Prevent link click
+    e.preventDefault();
     if (!confirm('Are you sure you want to delete this scan?')) return;
 
     setDeletingId(id);
@@ -19,7 +19,7 @@ export default function ReportList({ initialReports }: { initialReports: any[] }
       const res = await fetch(`/api/report/${id}`, { method: 'DELETE' });
       if (res.ok) {
         setReports(reports.filter(r => r.id !== id));
-        router.refresh(); // Refresh server state if needed
+        router.refresh();
       } else {
         alert('Failed to delete report');
       }
@@ -33,12 +33,11 @@ export default function ReportList({ initialReports }: { initialReports: any[] }
   const filteredReports = reports.filter(report => {
     if (activeTab === 'compliant') return report.isCompliant;
     if (activeTab === 'non-compliant') return !report.isCompliant;
-    return true; // 'all'
+    return true;
   });
 
   return (
     <div>
-      {/* Tabs */}
       <div className="flex border-b border-gray-200 dark:border-gray-700 mb-6">
         <button
           onClick={() => setActiveTab('all')}

@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { prisma } from '@/lib/prisma'; // Assuming lib is aliased or use relative path
+import { prisma } from '@/lib/prisma';
 import sharp from 'sharp';
 import fs from 'fs/promises';
 import path from 'path';
-import crypto from 'crypto';// We will use standard relative import since alias might not be configured
-// import { prisma } from '../../../lib/prisma';
+import crypto from 'crypto';
 
-// Helper to convert File to generative-ai part object
 async function fileToGenerativePart(file: File) {
   const arrayBuffer = await file.arrayBuffer();
   const base64Data = Buffer.from(arrayBuffer).toString("base64");
@@ -64,10 +62,8 @@ export async function POST(req: NextRequest) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    // Attempting to bypass the flash quota by using gemini-pro-latest
     const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
-    // Prepare uploads directory
     const uploadDir = path.join(process.cwd(), 'public', 'uploads');
     try {
       await fs.access(uploadDir);
@@ -77,13 +73,11 @@ export async function POST(req: NextRequest) {
 
     const imageUrls: string[] = [];
 
-    // Convert all uploaded files to generative parts and save compressed images
     const imageParts = await Promise.all(
       files.map(async (file) => {
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
 
-        // Compress and save image
         const uniqueId = crypto.randomUUID();
         const fileName = `${uniqueId}.jpg`;
         const filePath = path.join(uploadDir, fileName);
@@ -95,7 +89,6 @@ export async function POST(req: NextRequest) {
 
         imageUrls.push(`/uploads/${fileName}`);
 
-        // For generative part, we can use the original or compressed, using original for now
         const base64Data = buffer.toString("base64");
         return {
           inlineData: {
@@ -113,23 +106,18 @@ export async function POST(req: NextRequest) {
 
     const responseText = result.response.text();
 
-    // Extract JSON from response (handling potential markdown formatting like \`\`\`json)
     let jsonMatch = responseText.match(/```json\n([\s\S]*?)\n```/);
     let parsedResult;
 
     if (jsonMatch && jsonMatch[1]) {
       parsedResult = JSON.parse(jsonMatch[1]);
     } else {
-      // Fallback if no markdown block
       parsedResult = JSON.parse(responseText);
     }
 
-    // Check if user is logged in
     const { getSession } = await import('@/lib/auth');
     const session = await getSession();
 
-    // Save to Database using Prisma
-    // Assuming we have to import prisma relative to this file
     const { PrismaClient } = await import('@prisma/client');
     const db = new PrismaClient();
 
@@ -138,7 +126,7 @@ export async function POST(req: NextRequest) {
       isCompliant: parsedResult.isCompliant,
       missingFields: JSON.stringify(parsedResult.parameters || []),
       observations: parsedResult.observations || '',
-      imageUrl: JSON.stringify(imageUrls), // Store multiple URLs as a JSON string
+      imageUrl: JSON.stringify(imageUrls),
     };
 
     if (session?.userId) {

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { DarkModeToggle } from '../ThemeContext';
 import ReportList from './ReportList';
+import UserMenu from '@/components/UserMenu';
 
 export default async function DashboardPage() {
   const session = await getSession();
@@ -25,27 +26,40 @@ export default async function DashboardPage() {
   const compliancePercentage = totalScanned > 0 ? Math.round((compliantScans / totalScanned) * 100) : 0;
 
   return (
-    <div className="min-h-screen flex flex-col font-[family-name:var(--font-inter)] transition-colors duration-300 bg-[var(--color-bg-page)] dark:bg-[#0F172A] text-[var(--color-dark-blue)] dark:text-[#E2E8F0]">
-      {/* ─── Header / Navbar ─── */}
+    <div className="min-h-screen flex flex-col font-[family-name:var(--font-inter)] transition-colors duration-300 bg-gradient-to-br from-[var(--color-bg-page)] to-[var(--color-light-blue)] dark:from-[#0F172A] dark:to-[#1E293B] text-[var(--color-dark-blue)] dark:text-[#E2E8F0]">
       <header className="flex items-center justify-between py-4 md:py-5 px-4 md:px-8 transition-colors duration-300 bg-[var(--color-light-blue)] dark:bg-[#1E293B] shadow-sm">
         <Link href="/" className="text-2xl md:text-3xl font-[family-name:var(--font-pacifico)] text-[var(--color-dark-blue)] dark:text-[#93C5FD]">
           NavDrishti
         </Link>
-        <Link href="/" className="bg-[var(--color-primary-blue)] text-white px-4 py-2 rounded-lg text-sm md:text-base hover:brightness-110 transition-all font-medium shadow-sm cursor-pointer">
-          &larr; Back to Home
-        </Link>
+        <div className="flex gap-4 items-center">
+          <Link href="/" className="hidden md:inline-block bg-[var(--color-primary-blue)] text-white px-4 py-2 rounded-lg text-sm md:text-base hover:brightness-110 transition-all font-medium shadow-sm cursor-pointer">
+            &larr; Back to Home
+          </Link>
+          <UserMenu />
+        </div>
       </header>
 
-      {/* ─── Main content ─── */}
       <main className="flex-1 flex flex-col items-center py-10 px-4 md:px-0">
         <div className="w-full max-w-4xl">
-          <div className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-extrabold text-[var(--color-dark-blue)] dark:text-[#E2E8F0] tracking-tight">
-              Dashboard
-            </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-400 mt-2">
-              Welcome back, <span className="font-semibold text-[var(--color-primary-blue)]">{user?.name || 'User'}</span>
-            </p>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-extrabold text-[var(--color-dark-blue)] dark:text-[#E2E8F0] tracking-tight">
+                Dashboard
+              </h1>
+              <p className="text-lg text-gray-600 dark:text-gray-400 mt-2">
+                Welcome back, <span className="font-semibold text-[var(--color-primary-blue)]">{user?.name || 'User'}</span>
+              </p>
+            </div>
+            
+            <Link 
+              href="/" 
+              className="bg-[var(--color-primary-blue)] text-white px-5 py-2.5 rounded-lg text-sm md:text-base font-semibold shadow-md hover:brightness-110 hover:shadow-lg transition-all flex items-center gap-2 cursor-pointer"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 8V6a2 2 0 0 1 2-2h2M4 16v2a2 2 0 0 0 2 2h2M20 8V6a2 2 0 0 0-2-2h-2M20 16v2a2 2 0 0 1-2 2h-2M9 10h6v4H9z" />
+              </svg>
+              New Inspection
+            </Link>
           </div>
 
           {/* Stats Section */}

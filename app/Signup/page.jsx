@@ -28,7 +28,6 @@ export default function Signup() {
         throw new Error(data.error || "Something went wrong");
       }
 
-      // Redirect to home page after successful signup
       window.location.href = "/";
     } catch (err) {
       setError(err.message);
@@ -38,7 +37,7 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col font-[family-name:var(--font-inter)] overflow-hidden transition-colors duration-300 bg-white dark:bg-[#0F172A]">
+    <div className="min-h-screen flex flex-col font-[family-name:var(--font-inter)] overflow-hidden transition-colors duration-300 bg-gradient-to-br from-white to-[var(--color-light-blue)] dark:from-[#0F172A] dark:to-[#1E293B]">
       <div className="relative w-full flex justify-center">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[140%] md:w-[120%] h-[35vh] rounded-b-[50%] transition-colors duration-300 bg-[var(--color-light-blue)] dark:bg-[#1E293B]" />
         <div className="relative z-10 flex flex-col items-center pt-8 pb-16 md:pt-12 md:pb-24">

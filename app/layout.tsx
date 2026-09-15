@@ -1,5 +1,6 @@
 import "./globals.css";
 import { ThemeProvider } from "./ThemeContext";
+import Script from "next/script";
 
 export default function RootLayout({
   children,
@@ -9,20 +10,16 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var theme = localStorage.getItem('navdrishti-theme');
-                  if (theme === 'dark') {
-                    document.documentElement.classList.add('dark');
-                  }
-                } catch(e) {}
-              })();
-            `,
-          }}
-        />
+        <Script id="theme-script" strategy="beforeInteractive">
+          {`
+            try {
+              var theme = localStorage.getItem('navdrishti-theme');
+              if (theme !== 'light') {
+                document.documentElement.classList.add('dark');
+              }
+            } catch(e) {}
+          `}
+        </Script>
       </head>
       <body>
         <ThemeProvider>{children}</ThemeProvider>
