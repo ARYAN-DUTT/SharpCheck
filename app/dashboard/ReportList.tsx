@@ -78,6 +78,18 @@ export default function ReportList({ initialReports }: { initialReports: any[] }
               parameters = JSON.parse(report.missingFields || "[]");
             } catch (e) { }
 
+            let parsedImageUrls: string[] = [];
+            if (report.imageUrl) {
+              try {
+                parsedImageUrls = JSON.parse(report.imageUrl);
+              } catch (e) {
+                if (report.imageUrl.startsWith('data:image')) {
+                  parsedImageUrls = [report.imageUrl];
+                }
+              }
+            }
+            const firstImage = parsedImageUrls.length > 0 ? parsedImageUrls[0] : null;
+
             const isOldFormat = parameters.length > 0 && typeof parameters[0] === 'string';
 
             let totalParameters = 6;
@@ -122,7 +134,7 @@ export default function ReportList({ initialReports }: { initialReports: any[] }
                     <p className="text-sm text-gray-500 dark:text-gray-400 font-mono">ID: {report.id}</p>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{new Date(report.createdAt).toLocaleString()}</p>
                   </div>
-                  <div className="flex items-center gap-4 text-gray-400">
+                  <div className="flex items-center gap-2 md:gap-4 text-gray-400">
                     <button
                       onClick={(e) => handleDelete(e, report.id)}
                       disabled={deletingId === report.id}
@@ -133,7 +145,12 @@ export default function ReportList({ initialReports }: { initialReports: any[] }
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
                     </button>
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    {firstImage && (
+                      <div className="w-14 h-14 md:w-20 md:h-20 rounded-full overflow-hidden flex-shrink-0 border-2 border-gray-100 dark:border-gray-700 shadow-sm hidden sm:block">
+                        <img src={firstImage} alt={report.productName || "Product"} className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    <svg className="w-6 h-6 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   </div>
