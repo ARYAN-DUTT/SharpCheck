@@ -13,29 +13,35 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#2563EB" />
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
-        <Script id="theme-script" strategy="beforeInteractive">
-          {`
-            try {
-              var theme = localStorage.getItem('navdrishti-theme');
-              if (theme !== 'light') {
-                document.documentElement.classList.add('dark');
-              }
-            } catch(e) {}
-          `}
-        </Script>
-        <Script id="sw-register" strategy="afterInteractive">
-          {`
-            if ('serviceWorker' in navigator) {
-              window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js').then(function(registration) {
-                  console.log('ServiceWorker registration successful');
-                }, function(err) {
-                  console.log('ServiceWorker registration failed: ', err);
+        <script
+          id="theme-script"
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                var theme = localStorage.getItem('navdrishti-theme');
+                if (theme !== 'light') {
+                  document.documentElement.classList.add('dark');
+                }
+              } catch(e) {}
+            `
+          }}
+        />
+        <script
+          id="sw-register"
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                    console.log('ServiceWorker registration successful');
+                  }, function(err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                  });
                 });
-              });
-            }
-          `}
-        </Script>
+              }
+            `
+          }}
+        />
       </head>
       <body>
         <ThemeProvider>{children}</ThemeProvider>
