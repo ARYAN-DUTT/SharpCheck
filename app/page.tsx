@@ -91,7 +91,7 @@ export default function Home() {
           const canvas = document.createElement('canvas');
           let width = img.width;
           let height = img.height;
-          
+
           const MAX_SIZE = 1200;
           if (width > height) {
             if (width > MAX_SIZE) {
@@ -104,12 +104,12 @@ export default function Home() {
               height = MAX_SIZE;
             }
           }
-          
+
           canvas.width = width;
           canvas.height = height;
           const ctx = canvas.getContext('2d');
           ctx?.drawImage(img, 0, 0, width, height);
-          
+
           canvas.toBlob((blob) => {
             if (blob) {
               const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
@@ -196,7 +196,7 @@ export default function Home() {
           </span>
 
           <div className="flex-1 hidden lg:flex justify-center">
-            <nav className="flex gap-4 xl:gap-8 font-semibold text-base xl:text-lg text-[var(--color-dark-blue)] dark:text-[#CBD5E1]">
+            <nav className="flex gap-8 font-semibold text-base xl:text-lg text-[var(--color-dark-blue)] dark:text-[#CBD5E1]">
               <Link href="/" className="hover:opacity-70 transition-opacity whitespace-nowrap">Home</Link>
               <Link href="/about" className="hover:opacity-70 transition-opacity whitespace-nowrap">About Us</Link>
               <Link href="/contact" className="hover:opacity-70 transition-opacity whitespace-nowrap">Contact</Link>

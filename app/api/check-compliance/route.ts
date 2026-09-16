@@ -20,7 +20,7 @@ async function fileToGenerativePart(file: File) {
 
 const SYSTEM_PROMPT = `
 You are a Legal Metrology Compliance Expert for Packaged Commodities in India.
-Your task is to analyze the provided image(s) of a packaged product's label and determine if it complies with "The Legal Metrology (Packaged Commodities) Rules, 2011".
+Your task is to analyze the provided image(s) of a packaged product's label and determine if it complies with "Legal Metrology Act, 2009" and "The Legal Metrology (Packaged Commodities) Rules, 2011", the data for which is attached in md format. remember, you dont have to act like its 2009 or 2011, give answer according to todays time. just the rules are from 2009 to 2011.
 
 Identify the name of the product being checked, and evaluate the presence and validity of the following 9 parameters:
 1. Name and address of the manufacturer, packer, or importer.
@@ -92,8 +92,22 @@ export async function POST(req: NextRequest) {
       })
     );
 
+    const act2009Path = path.join(process.cwd(), 'app/api/check-compliance/act_2009.md');
+    const rules2011Path = path.join(process.cwd(), 'app/api/check-compliance/rules_2011.md');
+
+    let additionalContext = '';
+    try {
+      const act2009 = await fs.readFile(act2009Path, 'utf8');
+      const rules2011 = await fs.readFile(rules2011Path, 'utf8');
+      additionalContext = `\n\n=== Legal Metrology Act, 2009 ===\n${act2009}\n\n=== The Legal Metrology (Packaged Commodities) Rules, 2011 ===\n${rules2011}`;
+    } catch (e) {
+      console.warn("Could not load rule files, proceeding without them.", e);
+    }
+
+    const FINAL_SYSTEM_PROMPT = SYSTEM_PROMPT + additionalContext;
+
     const result = await model.generateContent([
-      SYSTEM_PROMPT,
+      FINAL_SYSTEM_PROMPT,
       ...imageParts,
     ]);
 
