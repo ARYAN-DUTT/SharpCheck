@@ -7,6 +7,7 @@ import { DarkModeToggle } from "./ThemeContext";
 import UserMenu from "@/components/UserMenu";
 import BoxAnimation from "./BoxAnimation";
 import "./box-animation.css";
+import "./carousel.css";
 
 export default function Home() {
   const router = useRouter();
@@ -225,8 +226,31 @@ export default function Home() {
           </div>
         )}
 
-        <main className="flex-1 flex flex-col items-center justify-center gap-6 md:gap-10 px-4 md:px-0 py-6 md:py-0">
-          <p className="text-xl md:text-4xl font-medium text-center text-[var(--color-dark-blue)] dark:text-[#CBD5E1] max-w-3xl ">
+        <main className="flex-1 flex flex-col items-center justify-center gap-6 md:gap-10 px-4 md:px-0 py-6 md:py-0 relative overflow-hidden">
+          {/* 3D Carousel Background (Desktop Only) */}
+          <div className="hidden lg:flex perspective-room">
+            <div className="carousel-scene">
+              <div className="carousel-track">
+                {/* Set 1 */}
+                <div className="carousel-item"><img src="/assets/carousel/item1.jpg" alt="Item 1" /></div>
+                <div className="carousel-item"><img src="/assets/carousel/item2.jpg" alt="Item 2" /></div>
+                <div className="carousel-item"><img src="/assets/carousel/item3.jpg" alt="Item 3" /></div>
+                <div className="carousel-item"><img src="/assets/carousel/item4.jpg" alt="Item 4" /></div>
+                {/* Set 2 */}
+                <div className="carousel-item"><img src="/assets/carousel/item1.jpg" alt="Item 1" /></div>
+                <div className="carousel-item"><img src="/assets/carousel/item2.jpg" alt="Item 2" /></div>
+                <div className="carousel-item"><img src="/assets/carousel/item3.jpg" alt="Item 3" /></div>
+                <div className="carousel-item"><img src="/assets/carousel/item4.jpg" alt="Item 4" /></div>
+                {/* Set 3 */}
+                <div className="carousel-item"><img src="/assets/carousel/item1.jpg" alt="Item 1" /></div>
+                <div className="carousel-item"><img src="/assets/carousel/item2.jpg" alt="Item 2" /></div>
+                <div className="carousel-item"><img src="/assets/carousel/item3.jpg" alt="Item 3" /></div>
+                <div className="carousel-item"><img src="/assets/carousel/item4.jpg" alt="Item 4" /></div>
+              </div>
+            </div>
+          </div>
+
+          <p className="text-xl md:text-4xl font-medium text-center text-[var(--color-dark-blue)] dark:text-[#CBD5E1] max-w-3xl relative z-10">
             {user ? `Welcome, ${user.name}` : "Check the Label. Know the Truth."}
           </p>
 
@@ -238,7 +262,7 @@ export default function Home() {
             w-full max-w-[95%] md:max-w-4xl rounded-[1.5rem] md:rounded-[2rem] px-4 md:px-20 py-8 md:py-12 min-h-[280px] md:min-h-[520px]
             border-[3px] border-dashed flex flex-col items-center justify-center gap-4 md:gap-6
             transition-all duration-200
-            bg-[var(--color-light-blue)] dark:bg-[#1E293B]
+            bg-[var(--color-light-blue)] dark:bg-[#1E293B] lg:!bg-transparent dropzone-glass
             ${isDragging
                 ? "border-[var(--color-primary-blue)] scale-[1.02] shadow-lg"
                 : "border-[var(--color-border-dashed)] dark:border-[#475569]"
@@ -266,7 +290,7 @@ export default function Home() {
               </button>
             </div>
 
-            <p className="text-sm mt-2 text-[var(--color-dark-blue)] dark:text-[#94A3B8]">
+            <p className="text-sm mt-2 text-[var(--color-primary-blue)]">
               or drag and drop here
             </p>
 

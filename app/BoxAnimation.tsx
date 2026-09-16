@@ -72,6 +72,17 @@ export default function BoxAnimation({
     }, 600);
   };
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Enter" || e.key === "Space" || e.key === "Escape") {
+        handleSkip();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleSkip]);
+
   if (phase === "done") return null;
 
   const isOpen = phase !== "closed";
@@ -156,30 +167,26 @@ export default function BoxAnimation({
             {/* 4 Flaps (Closed stably from frame 1, then open smoothly in sequence) */}
             <div className="ub-fwrap ub-fwrap--back">
               <div
-                className={`ub-flap ub-flap--back ${
-                  isOpen ? "ub-flap--open" : ""
-                }`}
+                className={`ub-flap ub-flap--back ${isOpen ? "ub-flap--open" : ""
+                  }`}
               />
             </div>
             <div className="ub-fwrap ub-fwrap--left">
               <div
-                className={`ub-flap ub-flap--left ${
-                  isOpen ? "ub-flap--open" : ""
-                }`}
+                className={`ub-flap ub-flap--left ${isOpen ? "ub-flap--open" : ""
+                  }`}
               />
             </div>
             <div className="ub-fwrap ub-fwrap--right">
               <div
-                className={`ub-flap ub-flap--right ${
-                  isOpen ? "ub-flap--open" : ""
-                }`}
+                className={`ub-flap ub-flap--right ${isOpen ? "ub-flap--open" : ""
+                  }`}
               />
             </div>
             <div className="ub-fwrap ub-fwrap--front">
               <div
-                className={`ub-flap ub-flap--front ${
-                  isOpen ? "ub-flap--open" : ""
-                }`}
+                className={`ub-flap ub-flap--front ${isOpen ? "ub-flap--open" : ""
+                  }`}
               >
                 {/* Seam tape line visible when box is closed */}
                 <div className="ub-flap-tape" />
@@ -190,7 +197,7 @@ export default function BoxAnimation({
       </div>
 
       {/* Tagline reveals as product hovers */}
-      <p className={`ub-tag text-white drop-shadow-md ${isRising ? "ub-tag--on" : ""}`}>
+      <p className={`ub-tag text-[var(--color-primary-blue)] dark:text-white drop-shadow-md ${isRising ? "ub-tag--on" : ""}`}>
         Ensuring Compliance, One Scan at a Time
       </p>
     </div>
