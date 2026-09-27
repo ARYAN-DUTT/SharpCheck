@@ -3,9 +3,10 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { DarkModeToggle } from '../../ThemeContext';
 
-export default async function ReportPage({ params }: { params: { id: string } }) {
+export default async function ReportPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const analysis = await prisma.standardsAnalysis.findUnique({
-    where: { id: params.id },
+    where: { id },
   });
 
   if (!analysis) {
