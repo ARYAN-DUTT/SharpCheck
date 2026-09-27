@@ -109,7 +109,7 @@ export default async function ReportPage({ params }: { params: { id: string } })
                 <h2 className="text-xl font-bold mb-4 text-[var(--color-dark-blue)] dark:text-white">Image Input</h2>
                 <div className="grid gap-4">
                   {parsedImageUrls.map((url, i) => (
-                    <img key={i} src={url} alt={\`Provided input \${i+1}\`} className="rounded-xl border border-gray-200 dark:border-gray-700 w-full object-cover" />
+                    <img key={i} src={url} alt={`Provided input ${i+1}`} className="rounded-xl border border-gray-200 dark:border-gray-700 w-full object-cover" />
                   ))}
                 </div>
               </div>
@@ -138,11 +138,11 @@ export default async function ReportPage({ params }: { params: { id: string } })
                     <div key={i} className="bg-gray-50 dark:bg-gray-800/50 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
                       <div className="flex justify-between items-start mb-2">
                         <h3 className="text-xl font-bold text-[var(--color-primary-blue)]">{std.standard}</h3>
-                        <span className={\`text-xs font-bold px-2 py-1 rounded-full uppercase \${
+                        <span className={`text-xs font-bold px-2 py-1 rounded-full uppercase ${
                           std.confidence === 'High' ? 'bg-green-100 text-green-700' :
                           std.confidence === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
                           'bg-orange-100 text-orange-700'
-                        }\`}>
+                        }`}>
                           {std.confidence === 'Requires Verification' ? 'Needs Verification' : std.confidence + ' Confidence'}
                         </span>
                       </div>
