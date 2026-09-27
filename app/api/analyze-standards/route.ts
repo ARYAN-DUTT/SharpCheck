@@ -110,14 +110,14 @@ export async function POST(req: NextRequest) {
 
     // Step 1: Extraction
     const extractionContent = [EXTRACTION_PROMPT];
-    if (textSpec) extractionContent.push(\`User Text Specification: \${textSpec}\`);
+    if (textSpec) extractionContent.push(`User Text Specification: ${textSpec}`);
     extractionContent.push(...imageParts);
 
     const extractionResult = await model.generateContent(extractionContent);
     const extractionText = extractionResult.response.text();
     let extractedData;
     try {
-      const jsonMatch = extractionText.match(/\`\`\`json\\n([\\s\\S]*?)\\n\`\`\`/);
+      const jsonMatch = extractionText.match(/```json\n([\s\S]*?)\n```/);
       extractedData = JSON.parse(jsonMatch ? jsonMatch[1] : extractionText);
     } catch(e) {
       console.error("Failed to parse extraction JSON", extractionText);
@@ -135,7 +135,7 @@ export async function POST(req: NextRequest) {
     const standardsDb = JSON.parse(dbContent);
     
     // Very basic keyword matching for mock retrieval
-    const productKeywords = \`\${extractedData.productName} \${extractedData.productCategory} \${JSON.stringify(extractedData.extractedSpecs)}\`.toLowerCase();
+    const productKeywords = `${extractedData.productName} ${extractedData.productCategory} ${JSON.stringify(extractedData.extractedSpecs)}`.toLowerCase();
     const retrievedStandards = standardsDb.filter((s: any) => 
       s.keywords.some((k: string) => productKeywords.includes(k)) ||
       productKeywords.includes(s.category.toLowerCase())
@@ -144,15 +144,16 @@ export async function POST(req: NextRequest) {
     // Step 3: Reasoning
     const reasoningContent = [
       REASONING_PROMPT,
-      \`Product Specs: \${JSON.stringify(extractedData, null, 2)}\`,
-      \`Retrieved Standards Database: \${JSON.stringify(retrievedStandards, null, 2)}\`
+      `Product Specs: ${JSON.stringify(extractedData, null, 2)}`,
+      `Retrieved Standards Database: ${JSON.stringify(retrievedStandards, null, 2)}`
     ];
+
 
     const reasoningResult = await model.generateContent(reasoningContent);
     const reasoningText = reasoningResult.response.text();
     let reasoningData;
     try {
-      const jsonMatch = reasoningText.match(/\`\`\`json\\n([\\s\\S]*?)\\n\`\`\`/);
+      const jsonMatch = reasoningText.match(/```json\n([\s\S]*?)\n```/);
       reasoningData = JSON.parse(jsonMatch ? jsonMatch[1] : reasoningText);
     } catch(e) {
       console.error("Failed to parse reasoning JSON", reasoningText);
