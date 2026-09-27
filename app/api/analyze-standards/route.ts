@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); // updated model name
+    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" }); // Reverted back to the original model name
 
     let imageUrls: string[] = [];
     const imageParts = [];
