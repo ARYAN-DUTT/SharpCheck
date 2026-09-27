@@ -12,7 +12,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     const { id } = await params;
 
     // Verify ownership
-    const report = await prisma.complianceReport.findUnique({
+    const report = await prisma.standardsAnalysis.findUnique({
       where: { id }
     });
 
@@ -25,7 +25,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     }
 
     // Delete the report
-    await prisma.complianceReport.delete({
+    await prisma.standardsAnalysis.delete({
       where: { id }
     });
 

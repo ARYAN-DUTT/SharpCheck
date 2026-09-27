@@ -15,14 +15,13 @@ export default function Home() {
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [textSpec, setTextSpec] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
 
-  // Package animation
-  // Box animation state — plays on every page refresh
   const [showAnimation, setShowAnimation] = useState(true);
   const [animationDone, setAnimationDone] = useState(false);
 
@@ -82,6 +81,8 @@ export default function Home() {
   };
 
   const compressImage = (file: File): Promise<File> => {
+    if (!file.type.startsWith('image/')) return Promise.resolve(file); // Don't compress non-images
+    
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -113,7 +114,7 @@ export default function Home() {
 
           canvas.toBlob((blob) => {
             if (blob) {
-              const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
+              const compressedFile = new File([blob], file.name.replace(/\\.[^/.]+$/, "") + ".jpg", {
                 type: 'image/jpeg',
                 lastModified: Date.now(),
               });
@@ -129,9 +130,9 @@ export default function Home() {
     });
   };
 
-  const handleCheck = async () => {
-    if (selectedFiles.length === 0) {
-      alert("Please select or drop pictures first.");
+  const handleAnalyze = async () => {
+    if (selectedFiles.length === 0 && textSpec.trim() === "") {
+      alert("Please provide a text specification, an image, or a document.");
       return;
     }
 
@@ -140,17 +141,22 @@ export default function Home() {
 
     try {
       const formData = new FormData();
+      formData.append('textSpec', textSpec);
+      
       for (const file of selectedFiles) {
-        try {
-          const compressed = await compressImage(file);
-          formData.append('images', compressed);
-        } catch (e) {
-          console.error("Compression failed, using original file", e);
-          formData.append('images', file);
+        if (file.type.startsWith('image/')) {
+          try {
+            const compressed = await compressImage(file);
+            formData.append('images', compressed);
+          } catch (e) {
+            formData.append('images', file);
+          }
+        } else {
+          formData.append('documents', file);
         }
       }
 
-      const response = await fetch('/api/check-compliance', {
+      const response = await fetch('/api/analyze-standards', {
         method: 'POST',
         body: formData,
       });
@@ -164,7 +170,7 @@ export default function Home() {
       }
 
       if (!response.ok) {
-        throw new Error(data?.error || 'Failed to check compliance');
+        throw new Error(data?.error || 'Failed to analyze standards');
       }
 
       router.push(`/report/${data.report.id}`);
@@ -187,9 +193,9 @@ export default function Home() {
             className="lg:hidden flex flex-col justify-center items-center w-8 h-8 gap-1.5 cursor-pointer"
             aria-label="Toggle menu"
           >
-            <span className={`block w-5 h-0.5 transition-all duration-300 bg-[var(--color-dark-blue)] dark:bg-[#93C5FD] ${menuOpen ? "rotate-45 translate-y-2" : ""}`} />
-            <span className={`block w-5 h-0.5 transition-all duration-300 bg-[var(--color-dark-blue)] dark:bg-[#93C5FD] ${menuOpen ? "opacity-0" : ""}`} />
-            <span className={`block w-5 h-0.5 transition-all duration-300 bg-[var(--color-dark-blue)] dark:bg-[#93C5FD] ${menuOpen ? "-rotate-45 -translate-y-2" : ""}`} />
+            <span className={\`block w-5 h-0.5 transition-all duration-300 bg-[var(--color-dark-blue)] dark:bg-[#93C5FD] \${menuOpen ? "rotate-45 translate-y-2" : ""}\`} />
+            <span className={\`block w-5 h-0.5 transition-all duration-300 bg-[var(--color-dark-blue)] dark:bg-[#93C5FD] \${menuOpen ? "opacity-0" : ""}\`} />
+            <span className={\`block w-5 h-0.5 transition-all duration-300 bg-[var(--color-dark-blue)] dark:bg-[#93C5FD] \${menuOpen ? "-rotate-45 -translate-y-2" : ""}\`} />
           </button>
 
           <span className="ml-2 text-2xl md:text-4xl font-[family-name:var(--font-pacifico)] flex-1 text-center md:text-left text-[var(--color-dark-blue)] dark:text-[#93C5FD]">
@@ -226,7 +232,7 @@ export default function Home() {
           </div>
         )}
 
-        <main className="flex-1 flex flex-col items-center justify-center gap-6 md:gap-10 px-4 md:px-0 py-6 md:py-0 relative overflow-hidden">
+        <main className="flex-1 flex flex-col items-center justify-center gap-6 md:gap-10 px-4 md:px-0 py-6 md:py-8 relative overflow-hidden">
           {/* 3D Carousel Background (Desktop Only) */}
           <div className="hidden lg:flex perspective-room">
             <div className="carousel-scene">
@@ -241,75 +247,88 @@ export default function Home() {
                 <div className="carousel-item"><img src="/assets/carousel/item2.jpg" alt="Item 2" /></div>
                 <div className="carousel-item"><img src="/assets/carousel/item3.jpg" alt="Item 3" /></div>
                 <div className="carousel-item"><img src="/assets/carousel/item4.jpg" alt="Item 4" /></div>
-                {/* Set 3 */}
-                <div className="carousel-item"><img src="/assets/carousel/item1.jpg" alt="Item 1" /></div>
-                <div className="carousel-item"><img src="/assets/carousel/item2.jpg" alt="Item 2" /></div>
-                <div className="carousel-item"><img src="/assets/carousel/item3.jpg" alt="Item 3" /></div>
-                <div className="carousel-item"><img src="/assets/carousel/item4.jpg" alt="Item 4" /></div>
               </div>
             </div>
           </div>
 
-          <p className="text-xl md:text-4xl font-medium text-center text-[var(--color-dark-blue)] dark:text-[#CBD5E1] max-w-3xl relative z-10">
-            {user ? `Welcome, ${user.name}` : "Check the Label. Know the Truth."}
-          </p>
+          <div className="flex flex-col items-center gap-2 relative z-10">
+            <p className="text-xl md:text-4xl font-medium text-center text-[var(--color-dark-blue)] dark:text-[#CBD5E1] max-w-3xl">
+              Discover the Indian Standards for your Product
+            </p>
+            <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 max-w-xl text-center">
+              Describe your procurement requirement or upload a product image to instantly identify applicable BIS standards and testing requirements.
+            </p>
+          </div>
 
           <div
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-            className={`
-            w-full max-w-[95%] md:max-w-4xl rounded-[1.5rem] md:rounded-[2rem] px-4 md:px-20 py-8 md:py-12 min-h-[280px] md:min-h-[520px]
-            border-[3px] border-dashed flex flex-col items-center justify-center gap-4 md:gap-6
-            transition-all duration-200
-            bg-[var(--color-light-blue)] dark:bg-[#1E293B] lg:!bg-transparent dropzone-glass
-            ${isDragging
-                ? "border-[var(--color-primary-blue)] scale-[1.02] shadow-lg"
-                : "border-[var(--color-border-dashed)] dark:border-[#475569]"
-              }
-          `}
+            className="w-full max-w-[95%] md:max-w-4xl flex flex-col md:flex-row gap-4 relative z-10"
           >
-            <input ref={fileInputRef} type="file" multiple accept="image/*" onChange={handleFileChange} className="hidden" />
-            <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleFileChange} className="hidden" />
-
-            <div className="flex flex-col sm:flex-row gap-3 md:gap-6 w-full sm:w-auto px-4 sm:px-0">
-              <button
-                onClick={handleCameraCapture}
-                className="md:hidden flex-1 flex items-center justify-center gap-2 bg-white text-[var(--color-primary-blue)] border-2 border-[var(--color-primary-blue)] px-6 py-3.5 md:px-10 md:py-4 rounded-xl md:rounded-2xl font-semibold text-base md:text-xl hover:bg-gray-50 transition-all cursor-pointer shadow-sm"
-              >
-                <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                Take Photo
-              </button>
-              <button
-                onClick={handleSelectPictures}
-                className="flex-1 flex items-center justify-center gap-2 bg-[var(--color-primary-blue)] text-white px-6 py-3.5 md:px-10 md:py-4 rounded-xl md:rounded-2xl font-semibold text-base md:text-xl hover:brightness-110 transition-all cursor-pointer shadow-sm"
-              >
-                <svg className="md:hidden w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                <span className="md:hidden">Gallery</span>
-                <span className="hidden md:inline">Select Pictures</span>
-              </button>
+            {/* Text Input Section */}
+            <div className="flex-1 flex flex-col gap-2">
+              <label className="text-sm font-semibold text-[var(--color-dark-blue)] dark:text-gray-300 ml-2">Procurement Specification</label>
+              <textarea 
+                value={textSpec}
+                onChange={(e) => setTextSpec(e.target.value)}
+                placeholder="e.g. We need a 15 litre, 2000W electric water heater for commercial use with a stainless steel body..."
+                className="w-full h-full min-h-[200px] p-4 rounded-2xl md:rounded-[2rem] border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1E293B] focus:border-[var(--color-primary-blue)] outline-none resize-none shadow-sm dropzone-glass"
+              />
             </div>
 
-            <p className="text-sm mt-2 text-[var(--color-primary-blue)]">
-              or drag and drop here
-            </p>
+            {/* Visual Input Section */}
+            <div
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              className={\`
+              flex-1 rounded-2xl md:rounded-[2rem] p-6 min-h-[200px]
+              border-[3px] border-dashed flex flex-col items-center justify-center gap-4
+              transition-all duration-200
+              bg-[var(--color-light-blue)] dark:bg-[#1E293B] lg:!bg-transparent dropzone-glass
+              \${isDragging
+                  ? "border-[var(--color-primary-blue)] scale-[1.02] shadow-lg"
+                  : "border-[var(--color-border-dashed)] dark:border-[#475569]"
+                }
+            \`}
+            >
+              <input ref={fileInputRef} type="file" multiple accept="image/*,application/pdf" onChange={handleFileChange} className="hidden" />
+              <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleFileChange} className="hidden" />
 
-            {selectedFiles.length > 0 && (
-              <div className="flex items-center gap-3 mt-2">
-                <p className="text-[var(--color-primary-blue)] text-sm font-medium">
-                  {selectedFiles.length} file(s) selected
-                </p>
-                <button onClick={(e) => { e.stopPropagation(); setSelectedFiles([]); }} className="text-red-500 text-sm font-semibold hover:underline">
-                  Clear
+              <div className="flex flex-col gap-3 w-full">
+                <button
+                  onClick={handleCameraCapture}
+                  className="md:hidden flex items-center justify-center gap-2 bg-white text-[var(--color-primary-blue)] border-2 border-[var(--color-primary-blue)] px-4 py-3 rounded-xl font-semibold hover:bg-gray-50 transition-all cursor-pointer shadow-sm"
+                >
+                  Take Photo
+                </button>
+                <button
+                  onClick={handleSelectPictures}
+                  className="flex items-center justify-center gap-2 bg-[var(--color-primary-blue)] text-white px-4 py-3 rounded-xl font-semibold hover:brightness-110 transition-all cursor-pointer shadow-sm"
+                >
+                  Upload File / Image
                 </button>
               </div>
-            )}
+
+              <p className="text-sm mt-2 text-[var(--color-primary-blue)] hidden md:block">
+                or drag and drop here
+              </p>
+
+              {selectedFiles.length > 0 && (
+                <div className="flex items-center gap-3 mt-2">
+                  <p className="text-[var(--color-primary-blue)] text-sm font-medium">
+                    {selectedFiles.length} file(s) attached
+                  </p>
+                  <button onClick={(e) => { e.stopPropagation(); setSelectedFiles([]); }} className="text-red-500 text-sm font-semibold hover:underline">
+                    Clear
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           <button
-            onClick={handleCheck}
+            onClick={handleAnalyze}
             disabled={loading}
-            className="bg-[var(--color-primary-blue)] text-white px-8 py-2.5 md:px-10 md:py-3 rounded-full font-semibold text-base md:text-lg shadow-md hover:brightness-110 hover:shadow-lg transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+            className="relative z-10 bg-[var(--color-primary-blue)] text-white px-8 py-3 md:px-12 md:py-4 rounded-full font-semibold text-lg md:text-xl shadow-lg hover:brightness-110 hover:shadow-xl transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {loading ? (
               <>
@@ -317,15 +336,15 @@ export default function Home() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Checking...
+                Analyzing Standards...
               </>
             ) : (
-              'Check Compliance'
+              'Identify Indian Standards'
             )}
           </button>
 
           {error && (
-            <div className="w-full max-w-sm md:max-w-4xl p-4 rounded-xl bg-red-50 border border-red-200">
+            <div className="relative z-10 w-full max-w-sm md:max-w-4xl p-4 rounded-xl bg-red-50 border border-red-200">
               <h3 className="text-sm font-medium text-red-800">Error</h3>
               <div className="mt-2 text-sm text-red-700">{error}</div>
             </div>

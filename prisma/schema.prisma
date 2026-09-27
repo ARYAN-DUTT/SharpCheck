@@ -8,24 +8,31 @@ datasource db {
 }
 
 model User {
-  id             String             @id @default(uuid())
+  id             String              @id @default(uuid())
   name           String
-  email          String             @unique
+  email          String              @unique
   passwordHash   String
-  createdAt      DateTime           @default(now())
-  reports        ComplianceReport[]
+  createdAt      DateTime            @default(now())
+  analyses       StandardsAnalysis[]
 }
 
-model ComplianceReport {
-  id             String   @id @default(uuid())
-  productName    String?
-  imageUrl       String?
-  isCompliant    Boolean
-  missingFields  String   // JSON stringified array of parameter objects
-  observations   String
-  createdAt      DateTime @default(now())
+model StandardsAnalysis {
+  id                  String   @id @default(uuid())
+  productName         String?
+  productCategory     String?
+  extractedSpecs      String   // JSON string of dynamic technical specifications
   
-  // Relation to User
-  user           User?    @relation(fields: [userId], references: [id])
-  userId         String?
+  applicableStandards String   // JSON array: { standard, title, applicability, confidence, source }
+  relatedStandards    String   // JSON array: { standard, category, title }
+  testingReqs         String   // Text or JSON describing testing requirements
+  certificationReqs   String   // Text or JSON describing BIS/other certifications
+  
+  imageUrl            String?  // For image inputs
+  documentUrl         String?  // For PDF/Doc inputs
+  rawTextInput        String?  // For text inputs
+  
+  createdAt           DateTime @default(now())
+  
+  user                User?    @relation(fields: [userId], references: [id])
+  userId              String?
 }

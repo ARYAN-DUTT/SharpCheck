@@ -15,15 +15,24 @@ export default async function DashboardPage() {
 
   const user = await prisma.user.findUnique({ where: { id: session.userId } });
 
-  const reports = await prisma.complianceReport.findMany({
+  const analyses = await prisma.standardsAnalysis.findMany({
     where: { userId: session.userId },
     orderBy: { createdAt: 'desc' },
   });
 
-  const totalScanned = reports.length;
-  const compliantScans = reports.filter(r => r.isCompliant).length;
-  const nonCompliantScans = totalScanned - compliantScans;
-  const compliancePercentage = totalScanned > 0 ? Math.round((compliantScans / totalScanned) * 100) : 0;
+  const totalAnalyses = analyses.length;
+  let standardsIdentified = 0;
+  let needsVerification = 0;
+
+  analyses.forEach(a => {
+    try {
+      const standards = JSON.parse(a.applicableStandards || "[]");
+      standardsIdentified += standards.length;
+      if (standards.some((s: any) => s.confidence === "Requires Verification")) {
+        needsVerification++;
+      }
+    } catch(e) {}
+  });
 
   return (
     <div className="min-h-screen flex flex-col font-[family-name:var(--font-inter)] transition-colors duration-300 bg-gradient-to-br from-[var(--color-bg-page)] to-[var(--color-light-blue)] dark:from-[#0F172A] dark:to-[#1E293B] text-[var(--color-dark-blue)] dark:text-[#E2E8F0]">
@@ -58,7 +67,7 @@ export default async function DashboardPage() {
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 8V6a2 2 0 0 1 2-2h2M4 16v2a2 2 0 0 0 2 2h2M20 8V6a2 2 0 0 0-2-2h-2M20 16v2a2 2 0 0 1-2 2h-2M9 10h6v4H9z" />
               </svg>
-              New Inspection
+              New Analysis
             </Link>
           </div>
 
@@ -71,8 +80,8 @@ export default async function DashboardPage() {
                 </svg>
               </div>
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 font-semibold uppercase tracking-wider">Total Scans</p>
-                <p className="text-3xl font-bold text-[var(--color-dark-blue)] dark:text-white">{totalScanned}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 font-semibold uppercase tracking-wider">Total Analyses</p>
+                <p className="text-3xl font-bold text-[var(--color-dark-blue)] dark:text-white">{totalAnalyses}</p>
               </div>
             </div>
 
@@ -83,8 +92,8 @@ export default async function DashboardPage() {
                 </svg>
               </div>
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 font-semibold uppercase tracking-wider">Overall Compliance</p>
-                <p className="text-3xl font-bold text-[var(--color-dark-blue)] dark:text-white">{compliancePercentage}%</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 font-semibold uppercase tracking-wider">Standards Found</p>
+                <p className="text-3xl font-bold text-[var(--color-dark-blue)] dark:text-white">{standardsIdentified}</p>
               </div>
             </div>
 
@@ -95,23 +104,14 @@ export default async function DashboardPage() {
                 </svg>
               </div>
               <div className="flex flex-col justify-center">
-                <p className="text-sm text-gray-500 dark:text-gray-400 font-semibold uppercase tracking-wider mb-2">Status Breakdown</p>
-                <div className="flex flex-col gap-1 text-sm font-medium">
-                  <span className="text-green-600 dark:text-green-400 flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                    {compliantScans}/{totalScanned} Compliant
-                  </span>
-                  <span className="text-red-600 dark:text-red-400 flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                    {nonCompliantScans}/{totalScanned} Non-Compliant
-                  </span>
-                </div>
+                 <p className="text-sm text-gray-500 dark:text-gray-400 font-semibold uppercase tracking-wider">Verification</p>
+                 <p className="text-3xl font-bold text-[var(--color-dark-blue)] dark:text-white">{needsVerification} <span className="text-sm font-normal text-gray-500">Need check</span></p>
               </div>
             </div>
           </div>
 
           <div className="mb-6">
-            <ReportList initialReports={reports} />
+            <ReportList initialAnalyses={analyses} />
           </div>
         </div>
       </main>

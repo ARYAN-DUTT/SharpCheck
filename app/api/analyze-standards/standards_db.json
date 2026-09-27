@@ -1,0 +1,65 @@
+[
+  {
+    "standard": "IS 2082 : 1993",
+    "title": "Stationary Storage Type Electric Water Heaters",
+    "category": "Electrical Appliance",
+    "keywords": ["water heater", "geyser", "electric", "stationary", "storage"],
+    "scope": "This standard covers stationary storage type electric water heaters intended for heating water to a temperature below its boiling point, for domestic and similar purposes, and having a rated capacity not exceeding 200 liters.",
+    "testingRequirements": "Testing includes insulation resistance, high voltage test, leakage current test, earth continuity test, and performance test (heating up time and standing loss).",
+    "certificationReqs": "Mandatory BIS Certification (ISI Mark) is required under the Electrical Installation Order."
+  },
+  {
+    "standard": "IS 302 (Part 2/Sec 21) : 2011",
+    "title": "Safety of household and similar electrical appliances: Particular requirements for stationary storage type electric water heaters",
+    "category": "Electrical Appliance",
+    "keywords": ["safety", "water heater", "electric", "appliance", "household"],
+    "scope": "Deals with the safety of stationary storage type electric water heaters for household and similar purposes, their rated voltage being not more than 250 V for single-phase appliances and 415 V for other appliances.",
+    "testingRequirements": "Protection against access to live parts, power input and current, heating, leakage current and electric strength at operating temperature.",
+    "certificationReqs": "General safety standard, compliance is mandatory as part of product certification."
+  },
+  {
+    "standard": "IS 1293 : 2019",
+    "title": "Plugs and Socket-Outlets of Rated Voltage up to and including 250 V and Rated Current up to and including 16 A - Specification",
+    "category": "Electrical Component",
+    "keywords": ["plug", "socket", "power cord", "electrical", "wiring"],
+    "scope": "Applies to plugs and fixed or portable socket-outlets for a.c. only, with and without earthing contact, with a rated voltage greater than 50 V but not exceeding 250 V and a rated current not exceeding 16 A, intended for household and similar purposes, either indoors or outdoors.",
+    "testingRequirements": "Dimensional checks, mechanical strength, resistance to heat, resistance to abnormal heat and fire, electrical strength.",
+    "certificationReqs": "Plugs used on appliances must be BIS certified."
+  },
+  {
+    "standard": "IS 366 : 2008",
+    "title": "Electric Irons - Specification",
+    "category": "Electrical Appliance",
+    "keywords": ["iron", "electric", "clothes", "appliance"],
+    "scope": "Covers electric dry irons and steam irons for household and similar purposes.",
+    "testingRequirements": "Heating, electrical insulation, mechanical strength of soleplate.",
+    "certificationReqs": "Mandatory BIS Certification."
+  },
+  {
+    "standard": "IS 1741 : 1960",
+    "title": "Latex Foam Rubber Products",
+    "category": "Consumer Goods",
+    "keywords": ["mattress", "cushion", "latex", "foam", "furniture"],
+    "scope": "Specifies requirements and methods of test for latex foam rubber products used for seating, bedding and similar applications.",
+    "testingRequirements": "Density, compression set, flexing, aging.",
+    "certificationReqs": "Voluntary ISI Mark."
+  },
+  {
+    "standard": "IS 15885 (Part 2/Sec 13) : 2012",
+    "title": "Safety of Lamp Control Gear - Particular Requirements for d.c. or a.c. Supplied Electronic Controlgear for LED Modules",
+    "category": "Lighting",
+    "keywords": ["led", "driver", "control gear", "lighting", "electronic"],
+    "scope": "Specifies particular safety requirements for electronic controlgear for use on d.c. supplies up to 250 V and a.c. supplies up to 1000 V at 50 Hz or 60 Hz.",
+    "testingRequirements": "Protection against electric shock, heating, endurance, fault conditions.",
+    "certificationReqs": "Mandatory under Compulsory Registration Scheme (CRS) by MeitY."
+  },
+  {
+    "standard": "IS 16102 (Part 1) : 2012",
+    "title": "Self-Ballasted LED Lamps for General Lighting Services - Safety Requirements",
+    "category": "Lighting",
+    "keywords": ["led", "lamp", "bulb", "lighting"],
+    "scope": "Specifies safety and interchangeability requirements, together with the test methods and conditions, required to show compliance of LED-lamps with integrated means for stable operation.",
+    "testingRequirements": "Insulation resistance, mechanical strength, heat resistance, fault condition testing.",
+    "certificationReqs": "Mandatory under CRS by MeitY."
+  }
+]
