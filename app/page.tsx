@@ -265,59 +265,59 @@ export default function Home() {
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             className={`
-              w-full max-w-[95%] md:max-w-3xl flex flex-col gap-6 relative z-10
-              rounded-2xl md:rounded-[2.5rem] p-6 md:p-10
-              border-[3px] border-dashed flex flex-col items-center justify-center
+              w-full max-w-3xl flex flex-col gap-6 relative z-10
+              rounded-3xl p-8 md:p-12
+              border-4 border-dashed flex flex-col items-center justify-center
               transition-all duration-200
-              bg-[var(--color-light-blue)] dark:bg-[#1E293B] lg:bg-[#BFDBFE]/50 dark:lg:bg-[#1E293B]/80 dropzone-glass
+              bg-blue-100 dark:bg-slate-800 shadow-xl
               ${isDragging
-                  ? "border-[var(--color-primary-blue)] scale-[1.02] shadow-lg"
-                  : "border-gray-400 dark:border-[#475569]"
+                  ? "border-blue-500 scale-105 shadow-2xl"
+                  : "border-gray-400 dark:border-gray-500"
                 }
             `}
           >
-            <div className="w-full flex flex-col gap-3">
-              <label className="text-lg md:text-xl font-semibold text-[var(--color-primary-blue)] dark:text-blue-300 text-center">
+            <div className="w-full flex flex-col gap-4">
+              <label className="text-xl md:text-2xl font-bold text-blue-700 dark:text-blue-300 text-center">
                 Enter procurement Specifications below
               </label>
               <textarea 
                 value={textSpec}
                 onChange={(e) => setTextSpec(e.target.value)}
-                className="w-full min-h-[160px] p-4 rounded-2xl md:rounded-[1.5rem] border-none bg-gray-300/60 dark:bg-gray-700/60 focus:bg-white dark:focus:bg-gray-800 focus:ring-2 focus:ring-[var(--color-primary-blue)] outline-none resize-none shadow-inner text-gray-800 dark:text-gray-100 transition-colors"
+                className="w-full min-h-[180px] p-5 rounded-2xl border-none bg-gray-300 dark:bg-slate-900 focus:bg-white dark:focus:bg-slate-700 focus:ring-4 focus:ring-blue-500 outline-none resize-none shadow-inner text-gray-900 dark:text-gray-100 transition-colors text-lg"
               />
             </div>
 
-            <div className="text-[var(--color-primary-blue)] dark:text-blue-300 font-bold text-xl md:text-2xl">
+            <div className="text-blue-700 dark:text-blue-300 font-bold text-2xl">
               or
             </div>
 
             <input ref={fileInputRef} type="file" multiple accept="image/*,application/pdf" onChange={handleFileChange} className="hidden" />
             <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleFileChange} className="hidden" />
 
-            <div className="flex flex-col items-center gap-2 w-full max-w-[280px]">
+            <div className="flex flex-col items-center gap-2 w-full max-w-sm">
               <button
                 onClick={handleCameraCapture}
-                className="md:hidden w-full flex items-center justify-center gap-2 bg-white text-[var(--color-primary-blue)] border-2 border-[var(--color-primary-blue)] px-6 py-3 rounded-full font-semibold hover:bg-gray-50 transition-all cursor-pointer shadow-sm"
+                className="md:hidden w-full flex items-center justify-center gap-2 bg-white text-blue-600 border-2 border-blue-600 px-6 py-4 rounded-full font-bold text-lg hover:bg-gray-50 transition-all cursor-pointer shadow-sm"
               >
                 Take Photo
               </button>
               <button
                 onClick={handleSelectPictures}
-                className="w-full flex items-center justify-center gap-2 bg-[#0084FF] text-white px-8 py-4 rounded-[1.5rem] font-medium text-xl shadow-md hover:brightness-110 hover:shadow-lg transition-all cursor-pointer tracking-wide"
+                className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white px-8 py-5 rounded-full font-bold text-2xl shadow-lg hover:bg-blue-500 hover:shadow-xl transition-all cursor-pointer"
               >
                 Select Pictures
               </button>
-              <p className="text-sm mt-1 text-[#0066CC] dark:text-blue-400 font-medium hidden md:block">
+              <p className="text-base mt-2 text-blue-700 dark:text-blue-300 font-semibold hidden md:block">
                 or drag and drop here
               </p>
             </div>
 
             {selectedFiles.length > 0 && (
-              <div className="flex items-center gap-3 mt-4 bg-white/90 dark:bg-gray-800/90 px-5 py-2.5 rounded-full border border-blue-200 dark:border-blue-800 shadow-sm">
-                <p className="text-[var(--color-primary-blue)] dark:text-blue-300 text-sm font-semibold">
+              <div className="flex items-center gap-3 mt-4 bg-white/90 dark:bg-slate-800/90 px-6 py-3 rounded-full border border-blue-200 dark:border-blue-800 shadow-md">
+                <p className="text-blue-700 dark:text-blue-300 text-base font-bold">
                   {selectedFiles.length} file(s) attached
                 </p>
-                <button onClick={(e) => { e.stopPropagation(); setSelectedFiles([]); }} className="text-red-500 text-sm font-bold hover:underline">
+                <button onClick={(e) => { e.stopPropagation(); setSelectedFiles([]); }} className="text-red-500 text-base font-bold hover:underline">
                   Clear
                 </button>
               </div>
