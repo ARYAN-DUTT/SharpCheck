@@ -193,9 +193,9 @@ export default function Home() {
             className="lg:hidden flex flex-col justify-center items-center w-8 h-8 gap-1.5 cursor-pointer"
             aria-label="Toggle menu"
           >
-            <span className={\`block w-5 h-0.5 transition-all duration-300 bg-[var(--color-dark-blue)] dark:bg-[#93C5FD] \${menuOpen ? "rotate-45 translate-y-2" : ""}\`} />
-            <span className={\`block w-5 h-0.5 transition-all duration-300 bg-[var(--color-dark-blue)] dark:bg-[#93C5FD] \${menuOpen ? "opacity-0" : ""}\`} />
-            <span className={\`block w-5 h-0.5 transition-all duration-300 bg-[var(--color-dark-blue)] dark:bg-[#93C5FD] \${menuOpen ? "-rotate-45 -translate-y-2" : ""}\`} />
+            <span className={`block w-5 h-0.5 transition-all duration-300 bg-[var(--color-dark-blue)] dark:bg-[#93C5FD] ${menuOpen ? "rotate-45 translate-y-2" : ""}`} />
+            <span className={`block w-5 h-0.5 transition-all duration-300 bg-[var(--color-dark-blue)] dark:bg-[#93C5FD] ${menuOpen ? "opacity-0" : ""}`} />
+            <span className={`block w-5 h-0.5 transition-all duration-300 bg-[var(--color-dark-blue)] dark:bg-[#93C5FD] ${menuOpen ? "-rotate-45 -translate-y-2" : ""}`} />
           </button>
 
           <span className="ml-2 text-2xl md:text-4xl font-[family-name:var(--font-pacifico)] flex-1 text-center md:text-left text-[var(--color-dark-blue)] dark:text-[#93C5FD]">
@@ -279,16 +279,16 @@ export default function Home() {
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
-              className={\`
+              className={`
               flex-1 rounded-2xl md:rounded-[2rem] p-6 min-h-[200px]
               border-[3px] border-dashed flex flex-col items-center justify-center gap-4
               transition-all duration-200
               bg-[var(--color-light-blue)] dark:bg-[#1E293B] lg:!bg-transparent dropzone-glass
-              \${isDragging
+              ${isDragging
                   ? "border-[var(--color-primary-blue)] scale-[1.02] shadow-lg"
                   : "border-[var(--color-border-dashed)] dark:border-[#475569]"
                 }
-            \`}
+            `}
             >
               <input ref={fileInputRef} type="file" multiple accept="image/*,application/pdf" onChange={handleFileChange} className="hidden" />
               <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleFileChange} className="hidden" />
