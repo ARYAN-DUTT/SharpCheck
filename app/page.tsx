@@ -261,68 +261,67 @@ export default function Home() {
           </div>
 
           <div
-            className="w-full max-w-[95%] md:max-w-4xl flex flex-col md:flex-row gap-4 relative z-10"
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className={`
+              w-full max-w-[95%] md:max-w-3xl flex flex-col gap-6 relative z-10
+              rounded-2xl md:rounded-[2.5rem] p-6 md:p-10
+              border-[3px] border-dashed flex flex-col items-center justify-center
+              transition-all duration-200
+              bg-[var(--color-light-blue)] dark:bg-[#1E293B] lg:bg-[#BFDBFE]/50 dark:lg:bg-[#1E293B]/80 dropzone-glass
+              ${isDragging
+                  ? "border-[var(--color-primary-blue)] scale-[1.02] shadow-lg"
+                  : "border-gray-400 dark:border-[#475569]"
+                }
+            `}
           >
-            {/* Text Input Section */}
-            <div className="flex-1 flex flex-col gap-2">
-              <label className="text-sm font-semibold text-[var(--color-dark-blue)] dark:text-gray-300 ml-2">Procurement Specification</label>
+            <div className="w-full flex flex-col gap-3">
+              <label className="text-lg md:text-xl font-semibold text-[var(--color-primary-blue)] dark:text-blue-300 text-center">
+                Enter procurement Specifications below
+              </label>
               <textarea 
                 value={textSpec}
                 onChange={(e) => setTextSpec(e.target.value)}
-                placeholder="e.g. We need a 15 litre, 2000W electric water heater for commercial use with a stainless steel body..."
-                className="w-full h-full min-h-[200px] p-4 rounded-2xl md:rounded-[2rem] border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1E293B] focus:border-[var(--color-primary-blue)] outline-none resize-none shadow-sm dropzone-glass"
+                className="w-full min-h-[160px] p-4 rounded-2xl md:rounded-[1.5rem] border-none bg-gray-300/60 dark:bg-gray-700/60 focus:bg-white dark:focus:bg-gray-800 focus:ring-2 focus:ring-[var(--color-primary-blue)] outline-none resize-none shadow-inner text-gray-800 dark:text-gray-100 transition-colors"
               />
             </div>
 
-            {/* Visual Input Section */}
-            <div
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              className={`
-              flex-1 rounded-2xl md:rounded-[2rem] p-6 min-h-[200px]
-              border-[3px] border-dashed flex flex-col items-center justify-center gap-4
-              transition-all duration-200
-              bg-[var(--color-light-blue)] dark:bg-[#1E293B] lg:!bg-transparent dropzone-glass
-              ${isDragging
-                  ? "border-[var(--color-primary-blue)] scale-[1.02] shadow-lg"
-                  : "border-[var(--color-border-dashed)] dark:border-[#475569]"
-                }
-            `}
-            >
-              <input ref={fileInputRef} type="file" multiple accept="image/*,application/pdf" onChange={handleFileChange} className="hidden" />
-              <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleFileChange} className="hidden" />
+            <div className="text-[var(--color-primary-blue)] dark:text-blue-300 font-bold text-xl md:text-2xl">
+              or
+            </div>
 
-              <div className="flex flex-col gap-3 w-full">
-                <button
-                  onClick={handleCameraCapture}
-                  className="md:hidden flex items-center justify-center gap-2 bg-white text-[var(--color-primary-blue)] border-2 border-[var(--color-primary-blue)] px-4 py-3 rounded-xl font-semibold hover:bg-gray-50 transition-all cursor-pointer shadow-sm"
-                >
-                  Take Photo
-                </button>
-                <button
-                  onClick={handleSelectPictures}
-                  className="flex items-center justify-center gap-2 bg-[var(--color-primary-blue)] text-white px-4 py-3 rounded-xl font-semibold hover:brightness-110 transition-all cursor-pointer shadow-sm"
-                >
-                  Upload File / Image
-                </button>
-              </div>
+            <input ref={fileInputRef} type="file" multiple accept="image/*,application/pdf" onChange={handleFileChange} className="hidden" />
+            <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleFileChange} className="hidden" />
 
-              <p className="text-sm mt-2 text-[var(--color-primary-blue)] hidden md:block">
+            <div className="flex flex-col items-center gap-2 w-full max-w-[280px]">
+              <button
+                onClick={handleCameraCapture}
+                className="md:hidden w-full flex items-center justify-center gap-2 bg-white text-[var(--color-primary-blue)] border-2 border-[var(--color-primary-blue)] px-6 py-3 rounded-full font-semibold hover:bg-gray-50 transition-all cursor-pointer shadow-sm"
+              >
+                Take Photo
+              </button>
+              <button
+                onClick={handleSelectPictures}
+                className="w-full flex items-center justify-center gap-2 bg-[#0084FF] text-white px-8 py-4 rounded-[1.5rem] font-medium text-xl shadow-md hover:brightness-110 hover:shadow-lg transition-all cursor-pointer tracking-wide"
+              >
+                Select Pictures
+              </button>
+              <p className="text-sm mt-1 text-[#0066CC] dark:text-blue-400 font-medium hidden md:block">
                 or drag and drop here
               </p>
-
-              {selectedFiles.length > 0 && (
-                <div className="flex items-center gap-3 mt-2">
-                  <p className="text-[var(--color-primary-blue)] text-sm font-medium">
-                    {selectedFiles.length} file(s) attached
-                  </p>
-                  <button onClick={(e) => { e.stopPropagation(); setSelectedFiles([]); }} className="text-red-500 text-sm font-semibold hover:underline">
-                    Clear
-                  </button>
-                </div>
-              )}
             </div>
+
+            {selectedFiles.length > 0 && (
+              <div className="flex items-center gap-3 mt-4 bg-white/90 dark:bg-gray-800/90 px-5 py-2.5 rounded-full border border-blue-200 dark:border-blue-800 shadow-sm">
+                <p className="text-[var(--color-primary-blue)] dark:text-blue-300 text-sm font-semibold">
+                  {selectedFiles.length} file(s) attached
+                </p>
+                <button onClick={(e) => { e.stopPropagation(); setSelectedFiles([]); }} className="text-red-500 text-sm font-bold hover:underline">
+                  Clear
+                </button>
+              </div>
+            )}
           </div>
 
           <button
