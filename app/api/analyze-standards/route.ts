@@ -29,6 +29,7 @@ async function fileToGenerativePart(file: File) {
 
 const EXTRACTION_PROMPT = `
 You are a technical extraction expert. Your job is to extract technical specifications, product category, and intended use from the provided input (text, images, or documents).
+The input may be in multilingual or natural language. Please understand and translate/extract the core specifications regardless of the input language.
 If the input is an image of a product or label, extract all visible technical specs.
 Output strictly in this JSON format:
 {
@@ -48,7 +49,7 @@ You will be provided with:
 1. Product specifications extracted from the user's input.
 2. A list of retrieved Indian Standards from our authoritative database.
 
-Your task is to analyze which of the retrieved standards apply to the product and provide clear reasoning.
+Your task is to analyze which of the retrieved standards apply to the product and provide clear reasoning based on semantic understanding of the product requirements.
 Only recommend standards from the retrieved list. Do not fabricate IS numbers.
 If none apply, say so.
 
@@ -56,9 +57,9 @@ Output strictly in this JSON format:
 {
   "applicableStandards": [
     {
-      "standard": "IS XXXXX",
+      "standard": "IS XXXXX (latest version/amendment)",
       "title": "Title",
-      "applicability": "Explain why it applies based on the specs",
+      "applicability": "Explain why it applies based on a deep semantic understanding of the specs",
       "confidence": "High" | "Medium" | "Requires Verification",
       "source": "Retrieved Database"
     }
@@ -66,12 +67,12 @@ Output strictly in this JSON format:
   "relatedStandards": [
     {
       "standard": "IS YYYYY",
-      "category": "Testing/Safety/Allied",
+      "category": "Normative Reference | Test Method | Terminology | Safety | Installation | Related Product",
       "title": "Title"
     }
   ],
-  "testingReqs": "Detailed explanation of testing required",
-  "certificationReqs": "Detailed explanation of BIS/other certifications required"
+  "testingReqs": "Detailed explanation of testing required based on the standards",
+  "certificationReqs": "Suggest mandatory certification requirements where applicable (e.g., BIS Product Certification, CRS, Hallmarking)"
 }
 `;
 
