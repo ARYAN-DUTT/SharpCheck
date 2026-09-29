@@ -138,7 +138,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Step 1: Extraction
-    const extractionContent = [EXTRACTION_PROMPT];
+    const extractionContent: any[] = [EXTRACTION_PROMPT];
     if (textSpec) extractionContent.push(`User Text Specification: ${textSpec}`);
     extractionContent.push(...imageParts);
 

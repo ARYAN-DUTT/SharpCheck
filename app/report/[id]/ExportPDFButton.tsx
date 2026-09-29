@@ -12,7 +12,7 @@ export default function ExportPDFButton({ analysis, extractedSpecs, applicableSt
       const pdfMake = pdfMakeModule.default || pdfMakeModule;
       const pdfFonts = pdfFontsModule.default || pdfFontsModule;
       
-      pdfMake.vfs = pdfFonts.pdfMake ? pdfFonts.pdfMake.vfs : pdfFonts.vfs;
+      (pdfMake as any).vfs = pdfFonts.pdfMake ? (pdfFonts.pdfMake as any).vfs : (pdfFonts as any).vfs;
 
       let parsedImageUrls: string[] = [];
       if (analysis.imageUrl) {
