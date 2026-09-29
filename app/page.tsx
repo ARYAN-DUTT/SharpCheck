@@ -308,7 +308,7 @@ export default function Home() {
               </button>
               <button
                 onClick={handleSelectPictures}
-                className="w-full flex items-center justify-center gap-2 bg-[var(--color-primary-blue)] text-white px-8 py-5 rounded-full font-bold text-2xl shadow-lg hover:brightness-110 hover:shadow-xl transition-all cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 bg-[var(--color-primary-blue)] text-white px-6 py-4 md:px-8 md:py-5 rounded-full font-bold text-lg md:text-2xl shadow-lg hover:brightness-110 hover:shadow-xl transition-all cursor-pointer"
               >
                 Select pictures/file
               </button>

@@ -42,12 +42,12 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
 
   return (
     <div className="min-h-screen flex flex-col font-[family-name:var(--font-inter)] transition-colors duration-300 bg-gradient-to-br from-[var(--color-bg-page)] to-[var(--color-light-blue)] dark:from-[#0F172A] dark:to-[#1E293B] text-[var(--color-dark-blue)] dark:text-[#E2E8F0] print:bg-white print:text-black print:block">
-      <header className="flex items-center justify-between py-5 px-8 transition-colors duration-300 bg-[var(--color-light-blue)] dark:bg-[#1E293B] shadow-sm sticky top-0 z-50 print:hidden">
-        <Link href="/" className="text-3xl font-[family-name:var(--font-pacifico)] text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary-blue)] to-[var(--color-dark-blue)] dark:from-[#60A5FA] dark:to-[#F8FAFC]">
+      <header className="flex items-center justify-between py-4 md:py-5 px-4 md:px-8 transition-colors duration-300 bg-[var(--color-light-blue)] dark:bg-[#1E293B] shadow-sm sticky top-0 z-50 print:hidden">
+        <Link href="/" className="text-2xl md:text-3xl font-[family-name:var(--font-pacifico)] text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary-blue)] to-[var(--color-dark-blue)] dark:from-[#60A5FA] dark:to-[#F8FAFC]">
           NavDrishti
         </Link>
-        <Link href="/" className="bg-[var(--color-primary-blue)] text-white px-4 py-2 rounded-lg font-semibold hover:brightness-110 transition-all shadow-sm">
-          &larr; Start New Analysis
+        <Link href="/" className="bg-[var(--color-primary-blue)] text-white px-3 py-1.5 md:px-4 md:py-2 text-sm md:text-base rounded-lg font-semibold hover:brightness-110 transition-all shadow-sm">
+          &larr; <span className="hidden md:inline">Start </span>New Analysis
         </Link>
       </header>
 
