@@ -22,14 +22,14 @@ export default async function DashboardPage() {
 
   const totalAnalyses = analyses.length;
   let standardsIdentified = 0;
-  let needsVerification = 0;
+  let standardsNotFound = 0;
 
   analyses.forEach(a => {
     try {
       const standards = JSON.parse(a.applicableStandards || "[]");
       standardsIdentified += standards.length;
-      if (standards.some((s: any) => s.confidence === "Requires Verification")) {
-        needsVerification++;
+      if (standards.length === 0) {
+        standardsNotFound++;
       }
     } catch(e) {}
   });
@@ -37,7 +37,7 @@ export default async function DashboardPage() {
   return (
     <div className="min-h-screen flex flex-col font-[family-name:var(--font-inter)] transition-colors duration-300 bg-gradient-to-br from-[var(--color-bg-page)] to-[var(--color-light-blue)] dark:from-[#0F172A] dark:to-[#1E293B] text-[var(--color-dark-blue)] dark:text-[#E2E8F0]">
       <header className="flex items-center justify-between py-4 md:py-5 px-4 md:px-8 transition-colors duration-300 bg-[var(--color-light-blue)] dark:bg-[#1E293B] shadow-sm">
-        <Link href="/" className="text-2xl md:text-3xl font-[family-name:var(--font-pacifico)] text-[var(--color-dark-blue)] dark:text-[#93C5FD]">
+        <Link href="/" className="text-2xl md:text-3xl font-[family-name:var(--font-pacifico)] text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary-blue)] to-[var(--color-dark-blue)] dark:from-[#60A5FA] dark:to-[#F8FAFC]">
           NavDrishti
         </Link>
         <div className="flex gap-4 items-center">
@@ -52,7 +52,7 @@ export default async function DashboardPage() {
         <div className="w-full max-w-4xl">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
             <div>
-              <h1 className="text-3xl md:text-4xl font-extrabold text-[var(--color-dark-blue)] dark:text-[#E2E8F0] tracking-tight">
+              <h1 className="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary-blue)] to-[var(--color-dark-blue)] dark:from-[#60A5FA] dark:to-[#F8FAFC] tracking-tight">
                 Dashboard
               </h1>
               <p className="text-lg text-gray-600 dark:text-gray-400 mt-2">
@@ -98,14 +98,14 @@ export default async function DashboardPage() {
             </div>
 
             <div className="flex-1 bg-white dark:bg-[#1E293B] p-6 rounded-2xl border-[2px] border-gray-100 dark:border-[#475569] shadow-sm flex items-center gap-4">
-              <div className="p-4 bg-orange-100 dark:bg-orange-900/30 rounded-full text-orange-600 dark:text-orange-400">
+              <div className="p-4 bg-red-100 dark:bg-red-900/30 rounded-full text-red-600 dark:text-red-400">
                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div className="flex flex-col justify-center">
-                 <p className="text-sm text-gray-500 dark:text-gray-400 font-semibold uppercase tracking-wider">Verification</p>
-                 <p className="text-3xl font-bold text-[var(--color-dark-blue)] dark:text-white">{needsVerification} <span className="text-sm font-normal text-gray-500">Need check</span></p>
+                 <p className="text-sm text-gray-500 dark:text-gray-400 font-semibold uppercase tracking-wider">Standards Not Found</p>
+                 <p className="text-3xl font-bold text-[var(--color-dark-blue)] dark:text-white">{standardsNotFound}</p>
               </div>
             </div>
           </div>

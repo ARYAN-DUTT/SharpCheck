@@ -11,9 +11,10 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
     const { id } = await params;
 
-    // Verify ownership
+    // Verify ownership without fetching potentially massive base64 image strings
     const report = await prisma.standardsAnalysis.findUnique({
-      where: { id }
+      where: { id },
+      select: { userId: true }
     });
 
     if (!report) {
@@ -24,9 +25,10 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Delete the report
+    // Delete the report without returning the massive base64 image strings
     await prisma.standardsAnalysis.delete({
-      where: { id }
+      where: { id },
+      select: { id: true }
     });
 
     return NextResponse.json({ success: true });

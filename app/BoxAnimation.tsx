@@ -198,7 +198,7 @@ export default function BoxAnimation({
 
       {/* Tagline reveals as product hovers */}
       <p className={`ub-tag text-[var(--color-primary-blue)] dark:text-white drop-shadow-md ${isRising ? "ub-tag--on" : ""}`}>
-        Ensuring Compliance, One Scan at a Time
+        Ensuring Standards, One Step at a Time
       </p>
     </div>
   );

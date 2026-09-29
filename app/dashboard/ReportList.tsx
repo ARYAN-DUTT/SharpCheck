@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 
 export default function ReportList({ initialAnalyses }: { initialAnalyses: any[] }) {
   const [analyses, setAnalyses] = useState(initialAnalyses);
+  const [filter, setFilter] = useState<'all' | 'found' | 'not_found'>('all');
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const router = useRouter();
 
@@ -29,9 +30,28 @@ export default function ReportList({ initialAnalyses }: { initialAnalyses: any[]
     }
   };
 
+  const filteredAnalyses = analyses.filter(a => {
+    let count = 0;
+    try {
+      const standards = JSON.parse(a.applicableStandards || "[]");
+      count = standards.length;
+    } catch(e) {}
+    
+    if (filter === 'found') return count > 0;
+    if (filter === 'not_found') return count === 0;
+    return true;
+  });
+
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-4 text-[var(--color-dark-blue)] dark:text-[#E2E8F0]">Recent Analyses</h2>
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4">
+        <h2 className="text-2xl font-bold text-[var(--color-dark-blue)] dark:text-[#E2E8F0]">Recent Analyses</h2>
+        <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg self-start md:self-auto">
+          <button onClick={() => setFilter('all')} className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all ${filter === 'all' ? 'bg-white dark:bg-gray-700 text-[var(--color-dark-blue)] dark:text-white shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}>All</button>
+          <button onClick={() => setFilter('found')} className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all ${filter === 'found' ? 'bg-white dark:bg-gray-700 text-green-600 dark:text-green-400 shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}>Standards Found</button>
+          <button onClick={() => setFilter('not_found')} className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all ${filter === 'not_found' ? 'bg-white dark:bg-gray-700 text-red-500 dark:text-red-400 shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}>Not Found</button>
+        </div>
+      </div>
       {analyses.length === 0 ? (
         <div className="text-center bg-white dark:bg-[#1E293B] p-10 rounded-[1.5rem] border-[3px] border-[var(--color-border-dashed)] dark:border-[#475569]">
           <p className="text-lg text-gray-500 dark:text-gray-400">
@@ -41,9 +61,15 @@ export default function ReportList({ initialAnalyses }: { initialAnalyses: any[]
             Start your first analysis
           </Link>
         </div>
+      ) : filteredAnalyses.length === 0 ? (
+        <div className="text-center bg-white dark:bg-[#1E293B] p-10 rounded-[1.5rem] border-[3px] border-[var(--color-border-dashed)] dark:border-[#475569]">
+          <p className="text-lg text-gray-500 dark:text-gray-400">
+            No analyses match the "{filter === 'found' ? 'Standards Found' : 'Not Found'}" filter.
+          </p>
+        </div>
       ) : (
         <div className="grid gap-6">
-          {analyses.map((analysis) => {
+          {filteredAnalyses.map((analysis) => {
             let standards: any[] = [];
             try {
               standards = JSON.parse(analysis.applicableStandards || "[]");
@@ -62,15 +88,15 @@ export default function ReportList({ initialAnalyses }: { initialAnalyses: any[]
             const firstImage = parsedImageUrls.length > 0 ? parsedImageUrls[0] : null;
 
             const needsVerification = standards.some(s => s.confidence === "Requires Verification");
-            let colorClass = needsVerification ? "bg-orange-500" : "bg-green-500";
-            let textClass = needsVerification ? "text-orange-500 dark:text-orange-400" : "text-green-600 dark:text-green-400";
+            let colorClass = standards.length === 0 ? "bg-red-500" : needsVerification ? "bg-orange-500" : "bg-green-500";
+            let textClass = standards.length === 0 ? "text-red-500 dark:text-red-400" : needsVerification ? "text-orange-500 dark:text-orange-400" : "text-green-600 dark:text-green-400";
 
             return (
               <Link key={analysis.id} href={`/report/${analysis.id}`} className="block transition-transform hover:-translate-y-1 relative group">
                 <div className="bg-white dark:bg-[#1E293B] p-6 rounded-2xl border-[2px] border-gray-100 dark:border-[#475569] shadow-sm hover:shadow-md transition-shadow flex items-center justify-between">
                   <div>
                     <div className="flex items-center gap-3 mb-2">
-                      <div className={`h-3 w-3 rounded-full ${colorClass}`}></div>
+                      <div className={`h-3 w-3 rounded-full flex-shrink-0 ${colorClass}`} style={{ backgroundColor: standards.length === 0 ? '#ef4444' : undefined }}></div>
                       <h2 className={`text-xl font-bold ${textClass}`}>
                         {standards.length} Standards Found
                       </h2>
@@ -81,7 +107,7 @@ export default function ReportList({ initialAnalyses }: { initialAnalyses: any[]
                       </p>
                     )}
                     <p className="text-sm text-gray-500 dark:text-gray-400 font-mono">ID: {analysis.id}</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{new Date(analysis.createdAt).toLocaleString()}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{new Date(analysis.createdAt).toLocaleString('en-GB')}</p>
                   </div>
                   <div className="flex items-center gap-2 md:gap-4 text-gray-400">
                     <button

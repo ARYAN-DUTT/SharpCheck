@@ -13,7 +13,7 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#2563EB" />
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
-        <script
+        <Script
           id="theme-script"
           dangerouslySetInnerHTML={{
             __html: `
@@ -26,7 +26,7 @@ export default function RootLayout({
             `
           }}
         />
-        <script
+        <Script
           id="sw-register"
           dangerouslySetInnerHTML={{
             __html: `

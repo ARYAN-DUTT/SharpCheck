@@ -198,12 +198,12 @@ export default function Home() {
             <span className={`block w-5 h-0.5 transition-all duration-300 bg-[var(--color-dark-blue)] dark:bg-[#93C5FD] ${menuOpen ? "-rotate-45 -translate-y-2" : ""}`} />
           </button>
 
-          <span className="ml-2 text-2xl md:text-4xl font-[family-name:var(--font-pacifico)] flex-1 text-center md:text-left text-[var(--color-dark-blue)] dark:text-[#93C5FD]">
+          <span className="ml-2 text-2xl md:text-4xl font-[family-name:var(--font-pacifico)] flex-1 text-center md:text-left text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary-blue)] to-[var(--color-dark-blue)] dark:from-[#60A5FA] dark:to-[#F8FAFC]">
             NavDrishti
           </span>
 
           <div className="flex-1 hidden lg:flex justify-center">
-            <nav className="flex gap-8 font-semibold text-base xl:text-lg text-[var(--color-dark-blue)] dark:text-[#CBD5E1]">
+            <nav className="flex gap-10 lg:gap-16 font-semibold text-base xl:text-lg text-[var(--color-dark-blue)] dark:text-[#CBD5E1]">
               <Link href="/" className="hover:opacity-70 transition-opacity whitespace-nowrap">Home</Link>
               <Link href="/about" className="hover:opacity-70 transition-opacity whitespace-nowrap">About Us</Link>
               <Link href="/contact" className="hover:opacity-70 transition-opacity whitespace-nowrap">Contact</Link>
@@ -232,7 +232,7 @@ export default function Home() {
           </div>
         )}
 
-        <main className="flex-1 flex flex-col items-center justify-center gap-6 md:gap-10 px-4 md:px-0 py-6 md:py-8 relative overflow-hidden">
+        <main className="flex-1 flex flex-col items-center justify-center gap-5 md:gap-8 px-4 md:px-0 py-4 md:py-6 relative overflow-hidden">
           {/* 3D Carousel Background (Desktop Only) */}
           <div className="hidden lg:flex perspective-room">
             <div className="carousel-scene">
@@ -247,47 +247,52 @@ export default function Home() {
                 <div className="carousel-item"><img src="/assets/carousel/item2.jpg" alt="Item 2" /></div>
                 <div className="carousel-item"><img src="/assets/carousel/item3.jpg" alt="Item 3" /></div>
                 <div className="carousel-item"><img src="/assets/carousel/item4.jpg" alt="Item 4" /></div>
+                {/* Set 3 (Required to complete 12 items for seamless 360 loop) */}
+                <div className="carousel-item"><img src="/assets/carousel/item1.jpg" alt="Item 1" /></div>
+                <div className="carousel-item"><img src="/assets/carousel/item2.jpg" alt="Item 2" /></div>
+                <div className="carousel-item"><img src="/assets/carousel/item3.jpg" alt="Item 3" /></div>
+                <div className="carousel-item"><img src="/assets/carousel/item4.jpg" alt="Item 4" /></div>
               </div>
             </div>
           </div>
 
-          <div className="flex flex-col items-center gap-2 relative z-10">
-            <p className="text-xl md:text-4xl font-medium text-center text-[var(--color-dark-blue)] dark:text-[#CBD5E1] max-w-3xl">
-              Discover the Indian Standards for your Product
-            </p>
-            <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 max-w-xl text-center">
-              Describe your procurement requirement or upload a product image to instantly identify applicable BIS standards and testing requirements.
-            </p>
+          <div className="flex flex-col items-center gap-2 relative z-10 mt-2 md:mt-4">
+            <h1 className="text-4xl md:text-6xl font-extrabold text-center tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary-blue)] to-[var(--color-dark-blue)] dark:from-[#60A5FA] dark:to-[#F8FAFC] max-w-4xl mb-2 drop-shadow-sm">
+              Standards, found in seconds.
+            </h1>
           </div>
 
           <div
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
+            style={{ backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
             className={`
-              w-full max-w-3xl flex flex-col gap-6 relative z-10
-              rounded-3xl p-8 md:p-12
-              border-4 border-dashed flex flex-col items-center justify-center
+              w-full max-w-[720px] flex flex-col gap-6 relative z-10
+              rounded-3xl p-6 md:p-8
+              border-[3px] border-dashed flex flex-col items-center justify-center
               transition-all duration-200
-              bg-blue-100 dark:bg-slate-800 shadow-xl
+              bg-[rgba(224,242,254,0.7)] dark:bg-[rgba(30,41,59,0.7)] shadow-xl
               ${isDragging
-                  ? "border-blue-500 scale-105 shadow-2xl"
-                  : "border-gray-400 dark:border-gray-500"
+                  ? "border-[var(--color-primary-blue)] scale-105 shadow-2xl"
+                  : "border-[var(--color-border-dashed)] dark:border-[#475569]"
                 }
             `}
           >
             <div className="w-full flex flex-col gap-4">
-              <label className="text-xl md:text-2xl font-bold text-blue-700 dark:text-blue-300 text-center">
-                Enter procurement Specifications below
+              <label className="text-xl md:text-2xl font-semibold text-[var(--color-primary-blue)] dark:text-[#93C5FD] text-center">
+                Enter Procurement Specifications below
               </label>
               <textarea 
+                rows={4}
                 value={textSpec}
                 onChange={(e) => setTextSpec(e.target.value)}
-                className="w-full min-h-[180px] p-5 rounded-2xl border-none bg-gray-300 dark:bg-slate-900 focus:bg-white dark:focus:bg-slate-700 focus:ring-4 focus:ring-blue-500 outline-none resize-none shadow-inner text-gray-900 dark:text-gray-100 transition-colors text-lg"
+                style={{ backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
+                className="w-full h-32 md:h-40 p-5 rounded-2xl border-[3px] border-dashed border-[var(--color-border-dashed)] dark:border-[#475569] bg-[rgba(255,255,255,0.6)] dark:bg-[rgba(15,23,42,0.6)] focus:bg-[rgba(255,255,255,0.8)] dark:focus:bg-[rgba(15,23,42,0.8)] focus:border-[var(--color-primary-blue)] focus:ring-4 focus:ring-[var(--color-primary-blue)]/20 outline-none resize-none shadow-inner text-gray-900 dark:text-gray-100 transition-colors text-lg"
               />
             </div>
 
-            <div className="text-blue-700 dark:text-blue-300 font-bold text-2xl">
+            <div className="text-[var(--color-primary-blue)] dark:text-[#93C5FD] font-bold text-2xl">
               or
             </div>
 
@@ -297,31 +302,32 @@ export default function Home() {
             <div className="flex flex-col items-center gap-2 w-full max-w-sm">
               <button
                 onClick={handleCameraCapture}
-                className="md:hidden w-full flex items-center justify-center gap-2 bg-white text-blue-600 border-2 border-blue-600 px-6 py-4 rounded-full font-bold text-lg hover:bg-gray-50 transition-all cursor-pointer shadow-sm"
+                className="md:hidden w-full flex items-center justify-center gap-2 bg-white text-[var(--color-primary-blue)] border-2 border-[var(--color-primary-blue)] px-6 py-4 rounded-full font-bold text-lg hover:bg-gray-50 transition-all cursor-pointer shadow-sm"
               >
                 Take Photo
               </button>
               <button
                 onClick={handleSelectPictures}
-                className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white px-8 py-5 rounded-full font-bold text-2xl shadow-lg hover:bg-blue-500 hover:shadow-xl transition-all cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 bg-[var(--color-primary-blue)] text-white px-8 py-5 rounded-full font-bold text-2xl shadow-lg hover:brightness-110 hover:shadow-xl transition-all cursor-pointer"
               >
-                Select Pictures
+                Select pictures/file
               </button>
-              <p className="text-base mt-2 text-blue-700 dark:text-blue-300 font-semibold hidden md:block">
-                or drag and drop here
-              </p>
-            </div>
-
-            {selectedFiles.length > 0 && (
-              <div className="flex items-center gap-3 mt-4 bg-white/90 dark:bg-slate-800/90 px-6 py-3 rounded-full border border-blue-200 dark:border-blue-800 shadow-md">
-                <p className="text-blue-700 dark:text-blue-300 text-base font-bold">
-                  {selectedFiles.length} file(s) attached
+              
+              {selectedFiles.length > 0 ? (
+                <div className="flex items-center gap-3 mt-2 bg-white/90 dark:bg-[#0F172A]/90 px-6 py-2 rounded-full border border-blue-200 dark:border-blue-800 shadow-md">
+                  <p className="text-[var(--color-primary-blue)] dark:text-[#93C5FD] text-base font-bold">
+                    {selectedFiles.length} file(s) attached
+                  </p>
+                  <button onClick={(e) => { e.stopPropagation(); setSelectedFiles([]); }} className="text-red-500 text-base font-bold hover:underline">
+                    Clear
+                  </button>
+                </div>
+              ) : (
+                <p className="text-base mt-2 text-[var(--color-primary-blue)] dark:text-[#93C5FD] font-semibold hidden md:block h-[42px] flex items-center justify-center">
+                  or drag and drop here
                 </p>
-                <button onClick={(e) => { e.stopPropagation(); setSelectedFiles([]); }} className="text-red-500 text-base font-bold hover:underline">
-                  Clear
-                </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           <button

@@ -28,51 +28,79 @@ async function fileToGenerativePart(file: File) {
 }
 
 const EXTRACTION_PROMPT = `
-You are a technical extraction expert. Your job is to extract technical specifications, product category, and intended use from the provided input (text, images, or documents).
-The input may be in multilingual or natural language. Please understand and translate/extract the core specifications regardless of the input language.
-If the input is an image of a product or label, extract all visible technical specs.
-Output strictly in this JSON format:
+You extract structured product data from tender text, product descriptions, labels, or images.
+Input may be in any Indian language or English, or mixed. Translate meaning into English; do not transliterate.
+
+Rules:
+- Extract only what is stated or clearly visible. Never guess values.
+- Add "searchTerms": 3-8 English AND original-language keywords (e.g. "TMT bar", "सरिया") for catalog matching.
+- Set "isPackagedForRetail" to true if the product is sold as a sealed consumer pack (food, water, oil, soap, paint tins, cement bags, etc.), else false.
+- Set "isFood" to true if it is food or a beverage.
+
+Output ONLY this JSON, no markdown:
 {
   "productName": "string",
   "productCategory": "string",
-  "extractedSpecs": {
-    "Capacity": "value",
-    "Power": "value",
-    // Add any other dynamic fields found (e.g. Material, Voltage, Dimensions, Intended Use, etc.)
-  }
+  "originalLanguage": "string",
+  "searchTerms": ["string"],
+  "isPackagedForRetail": boolean,
+  "isFood": boolean,
+  "extractedSpecs": { "<field>": "<value>" }
 }
 `;
 
-const REASONING_PROMPT = `
-You are an expert in Indian Standards (BIS) and Compliance.
-You will be provided with:
-1. Product specifications extracted from the user's input.
-2. A list of retrieved Indian Standards from our authoritative database.
+const buildReasoningPrompt = (catalogMd: string) => `
+You are a compliance assistant that recommends Indian Standards for procurement specifications.
 
-Your task is to analyze which of the retrieved standards apply to the product and provide clear reasoning based on semantic understanding of the product requirements.
-Only recommend standards from the retrieved list. Do not fabricate IS numbers.
-If none apply, say so.
+CATALOG (your ONLY source of standards):
+<catalog>
+${catalogMd}
+</catalog>
 
-Output strictly in this JSON format:
+You receive extracted product specs. Follow these rules exactly:
+
+1. Recommend ONLY standards that appear in the catalog. Never use an IS number, year, QCO number or regulation from your own memory. If nothing fits, return an empty "applicableStandards" and set "coverage" to "not_in_catalog".
+2. Match on meaning, not keywords. Use the specs (grade, voltage, material, use) to choose between variants, e.g. OPC vs PPC cement, RCCB vs MCB.
+3. Copy the catalog tag for each recommendation: "BIS-verified" or "verify". Do not upgrade a "verify" item.
+4. Version: state the year ONLY if the catalog gives one. Otherwise set "version" to "Confirm latest year and amendments on Manak".
+5. "relatedStandards" must come from the catalog's Related lines or same-QCO entries. Mark each with its tag. Use "Installation" only for installation or erection standards. Use "Normative Reference" for design and application codes. List a "Related Product" only if the user spec hints at it (e.g. they asked for accessories), otherwise mention it in "missingInfo" instead of listing it twice.
+6. Certification: use only these values for "scheme": "ISI Mark (QCO)", "CRS", "FMCS", "Hallmarking", "Voluntary", "Not determinable". Quote the QCO or order named in the catalog.
+7. Food: BIS certification is NOT mandatory for the de-notified food standards. Say "Voluntary (BIS)" and add FSSAI licence and FSS labelling/packaging regulations under "regulatoryOverlays".
+8. If isPackagedForRetail is true, add a Legal Metrology (Packaged Commodities) Rules, 2011 overlay: mandatory Rule 6 declarations, and any Second Schedule standard pack size the catalog lists for this commodity. Note Rule 3 (over 25 kg/25 L and industrial packs are excluded, except cement/fertilizer bags up to 50 kg).
+9. Confidence: "High" = spec clearly matches one catalog entry. "Medium" = plausible, spec ambiguous. "Requires Verification" = tag is "verify" or the spec is missing a deciding detail. List missing details in "missingInfo".
+10. Never state a limit, test value or clause number that is not in the catalog. For testing, name the test standards listed in Related and say the values must be read from the standard.
+
+Output ONLY this JSON, no markdown:
 {
+  "coverage": "covered" | "partial" | "not_in_catalog",
   "applicableStandards": [
     {
-      "standard": "IS XXXXX (latest version/amendment)",
-      "title": "Title",
-      "applicability": "Explain why it applies based on a deep semantic understanding of the specs",
+      "standard": "IS number as written in catalog",
+      "version": "string",
+      "title": "string",
+      "applicability": "1-2 sentences tying specific spec values to this standard",
       "confidence": "High" | "Medium" | "Requires Verification",
-      "source": "Retrieved Database"
+      "catalogTag": "BIS-verified" | "verify"
     }
   ],
   "relatedStandards": [
     {
-      "standard": "IS YYYYY",
+      "standard": "string",
       "category": "Normative Reference | Test Method | Terminology | Safety | Installation | Related Product",
-      "title": "Title"
+      "title": "string",
+      "catalogTag": "BIS-verified" | "verify"
     }
   ],
-  "testingReqs": "Detailed explanation of testing required based on the standards",
-  "certificationReqs": "Suggest mandatory certification requirements where applicable (e.g., BIS Product Certification, CRS, Hallmarking)"
+  "certification": {
+    "scheme": "ISI Mark (QCO)" | "CRS" | "FMCS" | "Hallmarking" | "Voluntary" | "Not determinable",
+    "basis": "QCO or order named in catalog, or empty",
+    "note": "string"
+  },
+  "regulatoryOverlays": [
+    { "name": "string", "why": "string", "actions": ["string"] }
+  ],
+  "testingReqs": "string",
+  "missingInfo": ["details the officer should add to the tender spec"]
 }
 `;
 
@@ -100,13 +128,13 @@ export async function POST(req: NextRequest) {
 
     for (const file of files) {
       const part = await fileToGenerativePart(file);
-      imageParts.push(part.inlineData);
+      imageParts.push({ inlineData: part.inlineData });
       if (part.base64Image) imageUrls.push(part.base64Image);
     }
     
     for (const doc of docs) {
       const part = await fileToGenerativePart(doc);
-      imageParts.push(part.inlineData);
+      imageParts.push({ inlineData: part.inlineData });
     }
 
     // Step 1: Extraction
@@ -125,28 +153,20 @@ export async function POST(req: NextRequest) {
       throw new Error("Failed to extract specifications");
     }
 
-    // Step 2: Retrieval (Mock RAG)
-    const dbPath = path.join(process.cwd(), 'app/api/analyze-standards/standards_db.json');
-    let dbContent = "[]";
+    // Step 2: Retrieval (Read Catalog)
+    const dbPath = path.join(process.cwd(), 'app/api/analyze-standards/catalog.md');
+    let catalogContent = "";
     try {
-      dbContent = await fs.readFile(dbPath, 'utf8');
+      catalogContent = await fs.readFile(dbPath, 'utf8');
     } catch (e) {
-      console.warn("Could not read standards_db.json");
+      console.warn("Could not read catalog.md");
+      catalogContent = "Catalog is currently unavailable.";
     }
-    const standardsDb = JSON.parse(dbContent);
-    
-    // Very basic keyword matching for mock retrieval
-    const productKeywords = `${extractedData.productName} ${extractedData.productCategory} ${JSON.stringify(extractedData.extractedSpecs)}`.toLowerCase();
-    const retrievedStandards = standardsDb.filter((s: any) => 
-      s.keywords.some((k: string) => productKeywords.includes(k)) ||
-      productKeywords.includes(s.category.toLowerCase())
-    );
 
     // Step 3: Reasoning
     const reasoningContent = [
-      REASONING_PROMPT,
-      `Product Specs: ${JSON.stringify(extractedData, null, 2)}`,
-      `Retrieved Standards Database: ${JSON.stringify(retrievedStandards, null, 2)}`
+      buildReasoningPrompt(catalogContent),
+      `Product Specs: ${JSON.stringify(extractedData, null, 2)}`
     ];
 
 
@@ -171,7 +191,12 @@ export async function POST(req: NextRequest) {
       applicableStandards: JSON.stringify(reasoningData.applicableStandards || []),
       relatedStandards: JSON.stringify(reasoningData.relatedStandards || []),
       testingReqs: reasoningData.testingReqs || '',
-      certificationReqs: reasoningData.certificationReqs || '',
+      certificationReqs: JSON.stringify({
+        certification: reasoningData.certification,
+        regulatoryOverlays: reasoningData.regulatoryOverlays,
+        missingInfo: reasoningData.missingInfo,
+        coverage: reasoningData.coverage
+      }),
       imageUrl: imageUrls.length > 0 ? JSON.stringify(imageUrls) : null,
       rawTextInput: textSpec || null,
     };
